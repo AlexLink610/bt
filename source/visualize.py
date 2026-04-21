@@ -31,7 +31,8 @@ def main():
     mat_tree_transparent = rendering.MaterialRecord()
     mat_tree_transparent.shader = "defaultUnlit"
     mat_tree_transparent.point_size = 2.0
-    mat_tree_transparent.base_color = [1.0, 1.0, 1.0, 0.03]
+    mat_tree_transparent.base_color = [1.0, 1.0, 1.0, 0.15]
+
     mat_apple = rendering.MaterialRecord()
     mat_apple.shader = "defaultUnlit"
     mat_apple.point_size = 3.0

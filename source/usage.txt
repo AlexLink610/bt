@@ -1,6 +1,0 @@
-# 1. Generate apple point cloud from tree PLY
-python filter_pointmap.py tree_02_122.ply tree_02_122_filenames.txt
-# -> produces tree_02_122_apples.ply
-
-# 2. Visualize with overlay
-python visualize.py tree_02_122.ply tree_02_122_apples.ply
