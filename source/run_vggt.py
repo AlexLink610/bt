@@ -38,7 +38,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_dir", required=True, help="Path to folder containing images")
     parser.add_argument("--output", required=True, help="Base output path e.g. /path/to/tree_02 (num views appended automatically)")
-    parser.add_argument("--subsample", type=int, default=1, help="Use every Nth image")
+    parser.add_argument("--num_views", type=int, default=None, help="Number of images to use (evenly sampled). Default: use all.")
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -53,15 +53,18 @@ def main():
     print("Model loaded.")
 
     # Get all image paths
-    image_paths = []
+    all_paths = []
     for ext in ["JPG", "jpg", "png", "PNG", "jpeg", "JPEG"]:
-        image_paths.extend(glob.glob(os.path.join(args.image_dir, f"*.{ext}")))
-    image_paths = sorted(image_paths)
-    print(f"Found {len(image_paths)} images")
+        all_paths.extend(glob.glob(os.path.join(args.image_dir, f"*.{ext}")))
+    all_paths = sorted(all_paths)
+    print(f"Found {len(all_paths)} images")
 
-    if args.subsample > 1:
-        image_paths = image_paths[::args.subsample]
-        print(f"Subsampled to every {args.subsample}th image: {len(image_paths)} images")
+    if args.num_views is not None:
+        indices = np.linspace(0, len(all_paths) - 1, args.num_views, dtype=int)
+        image_paths = [all_paths[i] for i in indices]
+        print(f"Selected {len(image_paths)} evenly spaced images")
+    else:
+        image_paths = all_paths
 
     if len(image_paths) == 0:
         print("No images found! Check --image_dir.")
