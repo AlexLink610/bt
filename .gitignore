@@ -1,0 +1,15 @@
+# Data
+data/
+output_vggt/
+output_sam/
+bin/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.npy
+*.ply
+
+# Models
+vggt_weights/
