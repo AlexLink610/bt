@@ -1,8 +1,94 @@
 import open3d as o3d
 import open3d.visualization.gui as gui
 import open3d.visualization.rendering as rendering
+import numpy as np
 import sys
 import os
+
+
+def read_ply_with_quality(path):
+    """
+    Read a PLY file and return (o3d.PointCloud, conf_array or None).
+    Parses the binary PLY manually to extract the 'quality' float channel
+    that Open3D does not expose through its standard API.
+    """
+    pcd = o3d.io.read_point_cloud(path)
+
+    conf = None
+    try:
+        with open(path, "rb") as f:
+            has_quality = False
+            props = []
+            n_pts = 0
+            while True:
+                line = f.readline().decode("ascii").strip()
+                if line == "end_header":
+                    break
+                if line.startswith("element vertex"):
+                    n_pts = int(line.split()[-1])
+                if line.startswith("property"):
+                    parts = line.split()
+                    props.append((parts[1], parts[2]))
+                    if parts[2] == "quality":
+                        has_quality = True
+
+            if has_quality:
+                type_map = {
+                    "float": np.float32, "float32": np.float32,
+                    "uchar": np.uint8,   "uint8": np.uint8,
+                    "double": np.float64,"float64": np.float64,
+                }
+                dt   = np.dtype([(name, type_map[t]) for t, name in props])
+                data = np.frombuffer(f.read(n_pts * dt.itemsize), dtype=dt)
+                conf = data["quality"].copy()
+                print(f"  Confidence range: {conf.min():.3f} – {conf.max():.3f}")
+
+    except Exception as e:
+        print(f"  Could not read quality channel: {e}")
+
+    return pcd, conf
+
+
+def make_mat(point_size=2.0):
+    m = rendering.MaterialRecord()
+    m.shader = "defaultUnlit"
+    m.point_size = point_size
+    return m
+
+
+def apply_conf_filter(pcd, conf, threshold):
+    """Return a new PointCloud with only points where conf >= threshold."""
+    if conf is None or threshold <= 0.0:
+        return pcd
+    mask = conf >= threshold
+    pts  = np.asarray(pcd.points)[mask]
+    cols = np.asarray(pcd.colors)[mask]
+    filtered = o3d.geometry.PointCloud()
+    filtered.points = o3d.utility.Vector3dVector(pts)
+    filtered.colors = o3d.utility.Vector3dVector(cols)
+    return filtered
+
+
+def make_red_pcd(pcd):
+    """Return a copy of pcd with all points coloured bright red."""
+    pts = np.asarray(pcd.points)
+    red = o3d.geometry.PointCloud()
+    red.points = o3d.utility.Vector3dVector(pts)
+    red.colors = o3d.utility.Vector3dVector(
+        np.tile([1.0, 0.0, 0.0], (len(pts), 1))
+    )
+    return red
+
+
+def make_ghost_pcd(source_pcd, fade=0.85):
+    """Blend original colors toward white by fade factor (0=original, 1=white)."""
+    pts  = np.asarray(source_pcd.points)
+    cols = np.asarray(source_pcd.colors)
+    faded_cols = cols + (1.0 - cols) * fade
+    g = o3d.geometry.PointCloud()
+    g.points = o3d.utility.Vector3dVector(pts)
+    g.colors = o3d.utility.Vector3dVector(faded_cols)
+    return g
 
 
 def main():
@@ -10,117 +96,155 @@ def main():
         print("Usage: python visualize.py <tree.ply> [apples.ply]")
         sys.exit(1)
 
-    tree_path = sys.argv[1]
+    tree_path  = sys.argv[1]
     apple_path = sys.argv[2] if len(sys.argv) > 2 else None
-    title = os.path.basename(tree_path)
+    title      = os.path.basename(tree_path)
 
-    # Load point clouds
-    tree_pcd = o3d.io.read_point_cloud(tree_path)
-    print(f"Loaded {len(tree_pcd.points)} tree points")
+    # ── Load ──────────────────────────────────────────────────────────────────
+    print(f"Loading tree: {tree_path}")
+    tree_pcd, tree_conf = read_ply_with_quality(tree_path)
+    print(f"  {len(tree_pcd.points):,} points")
 
-    apple_pcd = None
+    apple_pcd, apple_conf = None, None
     if apple_path and os.path.exists(apple_path):
-        apple_pcd = o3d.io.read_point_cloud(apple_path)
-        print(f"Loaded {len(apple_pcd.points)} apple points")
+        print(f"Loading apples: {apple_path}")
+        apple_pcd, apple_conf = read_ply_with_quality(apple_path)
+        print(f"  {len(apple_pcd.points):,} points")
 
-    # -----------------------------
-    # Materials
-    # -----------------------------
+    # ── State ─────────────────────────────────────────────────────────────────
+    state = {
+        "apples_visible": False,
+        "tree_faded":     False,
+        "apples_red":     False,
+        "conf_threshold": 0.0,
+        "point_size":     2.0,
+    }
 
-    # Tree: normal
-    mat_tree_normal = rendering.MaterialRecord()
-    mat_tree_normal.shader = "defaultUnlit"
-    mat_tree_normal.point_size = 2.0
-    mat_tree_normal.base_color = [1.0, 1.0, 1.0, 1.0]
-
-    # Tree: faded / transparent
-    mat_tree_faded = rendering.MaterialRecord()
-    mat_tree_faded.shader = "defaultUnlit"
-    mat_tree_faded.point_size = 2.0
-    mat_tree_faded.base_color = [1.0, 1.0, 1.0, 0.08]
-
-    mat_tree_ultra_faint = rendering.MaterialRecord()
-    mat_tree_ultra_faint.shader = "defaultUnlit"
-    mat_tree_ultra_faint.point_size = 1.0
-    mat_tree_ultra_faint.base_color = [1.0, 1.0, 1.0, 0.05]
-    
-    mat_apple_normal = rendering.MaterialRecord()
-    mat_apple_normal.shader = "defaultUnlit"
-    mat_apple_normal.point_size = 3.0
-
-    mat_apple_highlight = rendering.MaterialRecord()
-    mat_apple_highlight.shader = "defaultUnlit"
-    mat_apple_highlight.point_size = 6.0
-
-    # -----------------------------
-    # App and window
-    # -----------------------------
+    # ── App / window ──────────────────────────────────────────────────────────
     app = gui.Application.instance
     app.initialize()
-
     window = app.create_window(title, 1400, 800)
 
     scene = gui.SceneWidget()
     scene.scene = rendering.Open3DScene(window.renderer)
+    scene.scene.set_background([0.85, 0.85, 0.85, 1.0])
     window.add_child(scene)
 
-    # Optional: dark background makes apples easier to see
-    scene.scene.set_background([0.05, 0.05, 0.05, 1.0])
+    # ── Initial geometries ────────────────────────────────────────────────────
+    scene.scene.add_geometry("tree", tree_pcd, make_mat(state["point_size"]))
 
-    # Add geometry
-    scene.scene.add_geometry("tree", tree_pcd, mat_tree_normal)
     if apple_pcd is not None:
-        scene.scene.add_geometry("apples", apple_pcd, mat_apple_normal)
+        scene.scene.add_geometry("apples", apple_pcd,
+                                 make_mat(state["point_size"] * 1.5))
+        scene.scene.show_geometry("apples", False)
 
     bounds = scene.scene.bounding_box
     scene.setup_camera(60, bounds, bounds.get_center())
 
-    # -----------------------------
-    # Control panel
-    # -----------------------------
+    # ── Rebuild helpers ────────────────────────────────────────────────────────
+    def rebuild_tree():
+        sz    = state["point_size"]
+        t_pcd = apply_conf_filter(tree_pcd, tree_conf, state["conf_threshold"])
+        if state["tree_faded"]:
+            t_pcd = make_ghost_pcd(t_pcd, fade=0.85)
+        scene.scene.remove_geometry("tree")
+        scene.scene.add_geometry("tree", t_pcd, make_mat(sz))
+
+    def rebuild_apples():
+        if apple_pcd is None:
+            return
+        sz    = state["point_size"]
+        a_pcd = apply_conf_filter(apple_pcd, apple_conf, state["conf_threshold"])
+        if state["apples_red"]:
+            a_pcd = make_red_pcd(a_pcd)
+        scene.scene.remove_geometry("apples")
+        scene.scene.add_geometry("apples", a_pcd, make_mat(sz * 1.5))
+        scene.scene.show_geometry("apples", state["apples_visible"])
+
+    # ── Control panel ─────────────────────────────────────────────────────────
     panel = gui.Vert(8, gui.Margins(12, 12, 12, 12))
-    panel.add_child(gui.Label("Controls"))
-
+    panel.add_child(gui.Label("-- Apple controls --"))
     if apple_pcd is not None:
-        def toggle_apples_visible(checked):
-            # Only let this checkbox control visibility when not in highlight mode
-            if not chk_highlight.checked:
-                scene.scene.show_geometry("apples", checked)
 
-        chk_apples = gui.Checkbox("Show apple overlay")
-        chk_apples.checked = True
-        chk_apples.set_on_checked(toggle_apples_visible)
-        panel.add_child(chk_apples)
+        # Button 1: Show / Hide apples
+        btn_apples = gui.Button("Show apples")
+        def on_btn_apples():
+            state["apples_visible"] = not state["apples_visible"]
+            btn_apples.text = "Hide apples" if state["apples_visible"] else "Show apples"
+            scene.scene.show_geometry("apples", state["apples_visible"])
+        btn_apples.set_on_clicked(on_btn_apples)
+        panel.add_child(btn_apples)
 
-        def toggle_highlight_apples(checked):
-            if checked:
-                scene.scene.show_geometry("apples", True)
-                scene.scene.modify_geometry_material("tree", mat_tree_ultra_faint)
-                scene.scene.modify_geometry_material("apples", mat_apple_highlight)
-            else:
-                scene.scene.modify_geometry_material("tree", mat_tree_normal)
-                scene.scene.modify_geometry_material("apples", mat_apple_normal)
-                scene.scene.show_geometry("apples", chk_apples.checked)
+        # Button 2: Fade / Restore tree
+        btn_fade = gui.Button("Fade tree")
+        def on_btn_fade():
+            state["tree_faded"] = not state["tree_faded"]
+            btn_fade.text = "Restore tree" if state["tree_faded"] else "Fade tree"
+            rebuild_tree()
+        btn_fade.set_on_clicked(on_btn_fade)
+        panel.add_child(btn_fade)
 
-        chk_highlight = gui.Checkbox("Highlight apples")
-        chk_highlight.checked = False
-        chk_highlight.set_on_checked(toggle_highlight_apples)
-        panel.add_child(chk_highlight)
-    def toggle_tree_transparent(checked):
-        if checked:
-            scene.scene.modify_geometry_material("tree", mat_tree_faded)
-        else:
-            scene.scene.modify_geometry_material("tree", mat_tree_normal)
+        # Button 3: Mark apples red / restore colors
+        btn_red = gui.Button("Mark apples red")
+        def on_btn_red():
+            state["apples_red"] = not state["apples_red"]
+            btn_red.text = "Restore apple colors" if state["apples_red"] else "Mark apples red"
+            rebuild_apples()
+        btn_red.set_on_clicked(on_btn_red)
+        panel.add_child(btn_red)
 
-    chk_transp = gui.Checkbox("Tree transparent")
-    chk_transp.checked = False
-    chk_transp.set_on_checked(toggle_tree_transparent)
-    panel.add_child(chk_transp)
+    # ── Point size slider ─────────────────────────────────────────────────────
+    panel.add_fixed(8)
+    panel.add_child(gui.Label("-- Point size --"))
+    lbl_size = gui.Label(f"Size: {state['point_size']:.1f}")
+    panel.add_child(lbl_size)
+
+    sld_size = gui.Slider(gui.Slider.DOUBLE)
+    sld_size.set_limits(0.5, 8.0)
+    sld_size.double_value = state["point_size"]
+
+    def on_size(val):
+        state["point_size"] = val
+        lbl_size.text = f"Size: {val:.1f}"
+        rebuild_tree()
+        rebuild_apples()
+
+    sld_size.set_on_value_changed(on_size)
+    panel.add_child(sld_size)
+
+    # ── Confidence slider ─────────────────────────────────────────────────────
+    if tree_conf is not None or apple_conf is not None:
+        panel.add_fixed(8)
+        panel.add_child(gui.Label("-- Confidence filter --"))
+        panel.add_child(gui.Label("Min confidence (0 = keep all)"))
+
+        lbl_conf = gui.Label("Threshold: 0.00")
+        panel.add_child(lbl_conf)
+
+        sld_conf = gui.Slider(gui.Slider.DOUBLE)
+        sld_conf.set_limits(0.0, 1.0)
+        sld_conf.double_value = 0.0
+
+        def on_conf(val):
+            state["conf_threshold"] = val
+            lbl_conf.text = f"Threshold: {val:.2f}"
+            rebuild_tree()
+            if apple_pcd is not None:
+                rebuild_apples()
+
+        sld_conf.set_on_value_changed(on_conf)
+        panel.add_child(sld_conf)
+
+    # ── Info ──────────────────────────────────────────────────────────────────
+    panel.add_fixed(8)
+    panel.add_child(gui.Label(f"Tree pts:  {len(tree_pcd.points):,}"))
+    if apple_pcd is not None:
+        panel.add_child(gui.Label(f"Apple pts: {len(apple_pcd.points):,}"))
 
     window.add_child(panel)
 
     def on_layout(ctx):
-        r = window.content_rect
+        r  = window.content_rect
         pw = 220
         panel.frame = gui.Rect(r.x, r.y, pw, r.height)
         scene.frame = gui.Rect(r.x + pw, r.y, r.width - pw, r.height)
