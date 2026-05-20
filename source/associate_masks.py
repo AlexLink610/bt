@@ -1,4 +1,7 @@
 """
+associate_masks.py  –  Count apples using pointmap-based mask association
+                       (simplified version of CCGS Section 3.2)
+
 Pipeline:
     1. Load _pointmap.npy (N, H, W, 3) and _filenames.txt
     2. For each pair of adjacent images (i, i+1):
