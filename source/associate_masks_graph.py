@@ -6,26 +6,37 @@ Pipeline:
   - Edges  = Hungarian matches between instances across image pairs
   - Apple-to-apple correspondence: KD-tree built from apple pixels only
   - Connected components of the graph = unique physical apples
+  - Optional: VGGT confidence filtering to exclude low-quality 3D points
+
+Key change vs previous version:
+  - min_overlap_pct is now checked PER INSTANCE PAIR, not per image pair.
+    A pair of images is never skipped at the image level; instead, individual
+    instance matches are rejected if that specific mask pair has insufficient
+    pixel overlap. This prevents discarding pairs where only a subset of
+    apples are shared between two views.
 
 Usage:
     python associate_masks_graph.py \
         --pointmap   ~/ba/output_vggt/t02_360_64v_pointmap.npy \
+        --confmap    ~/ba/output_vggt/t02_360_64v_confmap.npy \
         --filenames  ~/ba/output_vggt/t02_360_64v_filenames.txt \
         --masks      ~/ba/output_sam/tree_02/semantics_sam3 \
         --transforms ~/ba/data/FruitNeRF_Real/FruitNeRF_Dataset/tree_02/transforms.json \
         --out        ~/ba/output_vggt/t02_360_64v_graph_count.txt
 
 Optional:
+    --confmap            path to _confmap.npy (N,H,W) normalised 0-1
+    --conf_thresh        min confidence to include a pixel (default: 0.3)
     --cam_dist_thresh    max camera distance to consider a pair (default: 999)
-    --corr_thresh        max 3D distance for valid pixel correspondence (default: 0.38)
-    --min_overlap_pct    min % apple pixels within corr_thresh to run Hungarian (default: 5)
+    --corr_thresh        max 3D distance for valid pixel correspondence (default: 0.010)
+    --min_overlap_pct    min % of an instance's OWN pixels that must land on the
+                         matched instance in image j (per-instance gate, default: 5)
     --min_match_overlap  min overlap fraction to accept a Hungarian match (default: 0.01)
     --ground_truth       ground truth apple count for error reporting (default: 113)
     --save_colored_ply   save colored PLY where each unique apple has a distinct color
 """
 
 import os
-import sys
 import json
 import argparse
 import numpy as np
@@ -39,6 +50,14 @@ def load_pointmap(path):
     pm = np.load(path)
     print(f"  Pointmap shape: {pm.shape}  ({pm.nbytes / 1e6:.1f} MB)")
     return pm
+
+
+def load_confmap(path):
+    cm = np.load(path)
+    print(f"  Confmap shape:  {cm.shape}  ({cm.nbytes / 1e6:.1f} MB)")
+    pcts = np.percentile(cm, [10, 25, 50, 75, 90])
+    print(f"  Conf percentiles [10,25,50,75,90]: {pcts.round(3)}")
+    return cm
 
 
 def load_filenames(path):
@@ -74,53 +93,60 @@ def load_camera_positions(transforms_path, fnames):
     return np.array([name_to_pos[f] for f in fnames])
 
 
-def compute_correspondence(pm1, pm2, mask1, mask2, H, W, corr_thresh):
+def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
+                           H, W, corr_thresh, conf_thresh):
     """
-    Apple-to-apple correspondence: for each apple pixel in image 1,
-    find nearest apple pixel in image 2 via KD-tree.
+    For each apple pixel in image 1, find nearest apple pixel in image 2
+    via KD-tree. Returns a flat corr array mapping pixel index -> pixel index
+    in image 2 (or -1 if no match within corr_thresh).
     """
     pts2_flat = pm2.reshape(-1, 3)
 
-    if mask2 is not None:
-        apple2_flat = (mask2.reshape(-1) > 0)
-        valid2 = apple2_flat & ~np.isnan(pts2_flat).any(axis=1)
-    else:
-        valid2 = ~np.isnan(pts2_flat).any(axis=1)
+    apple2_flat = (mask2.reshape(-1) > 0) if mask2 is not None else np.ones(H * W, bool)
+    valid2 = apple2_flat & ~np.isnan(pts2_flat).any(axis=1)
+    if conf2 is not None:
+        valid2 &= (conf2.reshape(-1) >= conf_thresh)
 
     valid2_idx = np.where(valid2)[0]
     if valid2_idx.size == 0:
-        return np.full(H * W, -1, dtype=np.int32), 0.0
+        return np.full(H * W, -1, dtype=np.int32)
 
     tree = cKDTree(pts2_flat[valid2])
 
-    if mask1 is not None:
-        apple1_flat = (mask1.reshape(-1) > 0)
-        valid1_flat = ~np.isnan(pm1.reshape(-1, 3)).any(axis=1)
-        apple1_idx = np.where(apple1_flat & valid1_flat)[0]
-    else:
-        apple1_idx = np.where(~np.isnan(pm1.reshape(-1, 3)).any(axis=1))[0]
+    apple1_flat = (mask1.reshape(-1) > 0) if mask1 is not None else np.ones(H * W, bool)
+    valid1_flat = ~np.isnan(pm1.reshape(-1, 3)).any(axis=1)
+    if conf1 is not None:
+        valid1_flat &= (conf1.reshape(-1) >= conf_thresh)
+    apple1_idx = np.where(apple1_flat & valid1_flat)[0]
 
     if apple1_idx.size == 0:
-        return np.full(H * W, -1, dtype=np.int32), 0.0
+        return np.full(H * W, -1, dtype=np.int32)
 
     distances, nn = tree.query(pm1.reshape(-1, 3)[apple1_idx], workers=-1)
     nn_flat = valid2_idx[nn]
-    pct_good = float((distances < corr_thresh).mean() * 100)
 
     corr = np.full(H * W, -1, dtype=np.int32)
     good = distances < corr_thresh
     corr[apple1_idx[good]] = nn_flat[good]
 
-    return corr, pct_good
+    return corr
 
 
-def compute_cost_matrix(mask1, mask2, corr, ids1, ids2):
+def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
+    """
+    Build cost matrix for Hungarian matching between instances in image 1 and 2.
+
+    min_overlap_pct: per-instance gate — if the fraction of instance a's pixels
+    that land on instance b is below this threshold, the pair is treated as
+    no-match (cost=1.0). This is now a per-instance check, not a per-image check.
+    """
     if not ids1 or not ids2:
         return np.ones((max(1, len(ids1)), max(1, len(ids2))), dtype=np.float32)
 
     mask1_flat = mask1.reshape(-1)
     mask2_flat = mask2.reshape(-1)
     C = np.ones((len(ids1), len(ids2)), dtype=np.float32)
+    min_overlap_frac = min_overlap_pct / 100.0
 
     for ai, a in enumerate(ids1):
         pixels_a = np.where(mask1_flat == a)[0]
@@ -136,8 +162,14 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2):
         for bi, b in enumerate(ids2):
             overlap = int((landed == b).sum())
             size_b = int((mask2_flat == b).sum())
-            if min(size_a, size_b) > 0:
-                C[ai, bi] = 1.0 - overlap / min(size_a, size_b)
+            if min(size_a, size_b) == 0:
+                continue
+            frac = overlap / min(size_a, size_b)
+            # Per-instance gate: reject if this specific pair has too little overlap
+            if frac < min_overlap_frac:
+                C[ai, bi] = 1.0  # no match
+            else:
+                C[ai, bi] = 1.0 - frac
 
     return C
 
@@ -167,7 +199,6 @@ class UnionFind:
         return sorted(Counter(roots).values(), reverse=True)
 
     def get_component_map(self):
-        """Returns (node_to_comp, root_counts) sorted by size descending."""
         roots = {x: self.find(x) for x in self.parent}
         root_counts = Counter(roots.values())
         sorted_roots = [r for r, _ in root_counts.most_common()]
@@ -177,33 +208,34 @@ class UnionFind:
 
 
 def make_colors(n):
-    """Generate n visually distinct colors using bit-reversal permutation of hue."""
+    """Generate n maximally distinct colors using golden ratio hue stepping
+    with alternating brightness levels."""
     colors = []
-    for comp_id in range(n):
-        # Bit-reversal permutation for maximum hue separation
-        idx = 0
-        bit = comp_id
-        for b in range(8):
-            idx = (idx << 1) | (bit & 1)
-            bit >>= 1
-        hue = (idx % max(n, 1)) / max(n, 1)
-        h = hue * 6
-        i = int(h)
-        f = h - i
-        palette = [
-            [255, int(255*f), 0],
-            [int(255*(1-f)), 255, 0],
-            [0, 255, int(255*f)],
-            [0, int(255*(1-f)), 255],
-            [int(255*f), 0, 255],
-            [255, 0, int(255*(1-f))],
-        ]
-        colors.append(palette[i % 6])
+    golden = 0.618033988749895
+    h = 0.0
+    for i in range(n):
+        h = (h + golden) % 1.0
+        # Alternate between bright and dark variants
+        v = 1.0 if i % 2 == 0 else 0.6
+        s = 1.0
+        # HSV to RGB
+        hi = int(h * 6)
+        f = h * 6 - hi
+        p = 0.0  # v * (1 - s) = 0
+        q = v * (1 - f)
+        t = v * f
+        hi = hi % 6
+        if hi == 0: r, g, b = v, t, p
+        elif hi == 1: r, g, b = q, v, p
+        elif hi == 2: r, g, b = p, v, t
+        elif hi == 3: r, g, b = p, q, v
+        elif hi == 4: r, g, b = t, p, v
+        else:         r, g, b = v, p, q
+        colors.append([int(r*255), int(g*255), int(b*255)])
     return colors
 
 
 def save_colored_ply(point_map, masks, filenames, node_to_comp, apple_count, path):
-    """Save apple PLY where each unique apple component gets a distinct color."""
     colors_by_comp = make_colors(apple_count)
     N, H, W, _ = point_map.shape
 
@@ -260,15 +292,24 @@ def save_colored_ply(point_map, masks, filenames, node_to_comp, apple_count, pat
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pointmap",          required=True)
+    parser.add_argument("--confmap",           default=None,
+                        help="Path to _confmap.npy (N,H,W) normalised 0-1.")
+    parser.add_argument("--conf_thresh",       type=float, default=0.3,
+                        help="Min confidence for a pixel to participate (default: 0.3).")
     parser.add_argument("--filenames",         required=True)
     parser.add_argument("--masks",             required=True)
     parser.add_argument("--transforms",        required=True)
     parser.add_argument("--out",               default=None)
     parser.add_argument("--ground_truth",      type=int, default=113)
     parser.add_argument("--cam_dist_thresh",   type=float, default=999.0)
-    parser.add_argument("--corr_thresh",       type=float, default=0.38)
-    parser.add_argument("--min_overlap_pct",   type=float, default=5.0)
-    parser.add_argument("--min_match_overlap", type=float, default=0.01)
+    parser.add_argument("--corr_thresh",       type=float, default=0.010)
+    parser.add_argument("--min_overlap_pct",   type=float, default=5.0,
+                        help="Min %% of an instance's OWN pixels that must correspond "
+                             "to the matched instance (per-instance gate, default: 5).")
+    parser.add_argument("--min_match_overlap", type=float, default=0.01,
+                        help="Min overlap fraction for Hungarian match to be accepted "
+                             "(default: 0.01). Note: redundant with min_overlap_pct "
+                             "since per-instance gating is now done in cost matrix.")
     parser.add_argument("--save_colored_ply",  action="store_true")
     args = parser.parse_args()
 
@@ -276,10 +317,20 @@ def main():
     print("Apple Counter -- Graph-based Association")
     print("=" * 60)
     print(f"  cam_dist_thresh={args.cam_dist_thresh}  corr_thresh={args.corr_thresh}")
-    print(f"  min_overlap_pct={args.min_overlap_pct}%  min_match_overlap={args.min_match_overlap}")
+    print(f"  min_overlap_pct={args.min_overlap_pct}% (per-instance)  "
+          f"min_match_overlap={args.min_match_overlap}")
+    if args.confmap:
+        print(f"  conf_thresh={args.conf_thresh}")
+    else:
+        print(f"  conf filtering: DISABLED")
 
     print("\nLoading inputs...")
     point_map = load_pointmap(args.pointmap)
+
+    conf_map = None
+    if args.confmap is not None:
+        conf_map = load_confmap(args.confmap)
+
     filenames = load_filenames(args.filenames)
     N, H, W, _ = point_map.shape
 
@@ -312,7 +363,6 @@ def main():
 
     print(f"\nProcessing {len(pairs)} pairs...")
     edges_added = 0
-    pairs_skipped = 0
 
     for pair_idx, (i, j) in enumerate(pairs):
         ids_i = get_instance_ids(masks[i])
@@ -321,32 +371,32 @@ def main():
         if not ids_i or not ids_j:
             continue
 
-        corr_ij, pct_ij = compute_correspondence(
-            point_map[i], point_map[j], masks[i], masks[j], H, W, args.corr_thresh
+        conf_i = conf_map[i] if conf_map is not None else None
+        conf_j = conf_map[j] if conf_map is not None else None
+
+        corr_ij = compute_correspondence(
+            point_map[i], point_map[j], masks[i], masks[j],
+            conf_i, conf_j, H, W, args.corr_thresh, args.conf_thresh
         )
 
-        if pct_ij < args.min_overlap_pct:
-            pairs_skipped += 1
-            continue
-
-        C = compute_cost_matrix(masks[i], masks[j], corr_ij, ids_i, ids_j)
+        # Per-instance overlap gate now inside compute_cost_matrix
+        C = compute_cost_matrix(
+            masks[i], masks[j], corr_ij, ids_i, ids_j, args.min_overlap_pct
+        )
         row_ind, col_ind = linear_sum_assignment(C)
 
-        matched = 0
         for ai, bi in zip(row_ind, col_ind):
             if C[ai, bi] < (1.0 - args.min_match_overlap):
                 uf.union((i, ids_i[ai]), (j, ids_j[bi]))
                 edges_added += 1
-                matched += 1
 
         if (pair_idx + 1) % 200 == 0 or pair_idx == len(pairs) - 1:
-            print(f"  [{pair_idx+1:4d}/{len(pairs)}] edges: {edges_added}  skipped: {pairs_skipped}")
+            print(f"  [{pair_idx+1:4d}/{len(pairs)}] edges: {edges_added}")
 
     apple_count = uf.components()
     gt = args.ground_truth
     error = apple_count - gt
 
-    # Component size distribution
     sizes = uf.component_sizes()
     print(f"\n  Component size distribution:")
     print(f"    Total components:        {len(sizes)}")
@@ -357,9 +407,7 @@ def main():
     print(f"    Mean nodes/component:    {np.mean(sizes):.1f}")
     print(f"    Max nodes/component:     {sizes[0]}")
 
-    print(f"\n  Pairs processed: {len(pairs) - pairs_skipped}/{len(pairs)}")
-    print(f"  Pairs skipped:   {pairs_skipped}")
-    print(f"  Edges added:     {edges_added}")
+    print(f"\n  Edges added:     {edges_added}")
     print(f"  Total nodes:     {total_nodes}")
 
     print(f"\n{'='*60}")
@@ -386,7 +434,7 @@ def main():
             f.write(f"corr_thresh: {args.corr_thresh}\n")
             f.write(f"min_overlap_pct: {args.min_overlap_pct}\n")
             f.write(f"min_match_overlap: {args.min_match_overlap}\n")
-            f.write(f"pairs_processed: {len(pairs) - pairs_skipped}\n")
+            f.write(f"conf_thresh: {args.conf_thresh if args.confmap else 'disabled'}\n")
             f.write(f"edges_added: {edges_added}\n")
             f.write(f"largest_component: {sizes[0]}\n")
             f.write(f"singletons: {sum(1 for s in sizes if s==1)}\n")
