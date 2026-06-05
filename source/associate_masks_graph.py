@@ -8,23 +8,21 @@ Pipeline:
   - Connected components of the graph = unique physical apples
   - Optional: VGGT confidence filtering to exclude low-quality 3D points
 
-Key change vs previous version:
+Key changes vs previous version:
   - min_overlap_pct is now checked PER INSTANCE PAIR, not per image pair.
-    A pair of images is never skipped at the image level; instead, individual
-    instance matches are rejected if that specific mask pair has insufficient
-    pixel overlap. This prevents discarding pairs where only a subset of
-    apples are shared between two views.
+  - --transforms is now optional. If not provided, all image pairs are used.
 
 Usage:
     python associate_masks_graph.py \
         --pointmap   ~/ba/output_vggt/t02_360_64v_pointmap.npy \
-        --confmap    ~/ba/output_vggt/t02_360_64v_confmap.npy \
         --filenames  ~/ba/output_vggt/t02_360_64v_filenames.txt \
         --masks      ~/ba/output_sam/tree_02/semantics_sam3 \
         --transforms ~/ba/data/FruitNeRF_Real/FruitNeRF_Dataset/tree_02/transforms.json \
         --out        ~/ba/output_vggt/t02_360_64v_graph_count.txt
 
 Optional:
+    --transforms         path to transforms.json for camera-distance filtering
+                         (if omitted, all pairs are used)
     --confmap            path to _confmap.npy (N,H,W) normalised 0-1
     --conf_thresh        min confidence to include a pixel (default: 0.3)
     --cam_dist_thresh    max camera distance to consider a pair (default: 999)
@@ -32,8 +30,8 @@ Optional:
     --min_overlap_pct    min % of an instance's OWN pixels that must land on the
                          matched instance in image j (per-instance gate, default: 5)
     --min_match_overlap  min overlap fraction to accept a Hungarian match (default: 0.01)
-    --ground_truth       ground truth apple count for error reporting (default: 113)
-    --save_colored_ply   save colored PLY where each unique apple has a distinct color
+    --ground_truth       ground truth count for error reporting (default: 113)
+    --save_colored_ply   save colored PLY where each unique instance has a distinct color
 """
 
 import os
@@ -96,7 +94,7 @@ def load_camera_positions(transforms_path, fnames):
 def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
                            H, W, corr_thresh, conf_thresh):
     """
-    For each apple pixel in image 1, find nearest apple pixel in image 2
+    For each object pixel in image 1, find nearest object pixel in image 2
     via KD-tree. Returns a flat corr array mapping pixel index -> pixel index
     in image 2 (or -1 if no match within corr_thresh).
     """
@@ -138,7 +136,7 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
 
     min_overlap_pct: per-instance gate — if the fraction of instance a's pixels
     that land on instance b is below this threshold, the pair is treated as
-    no-match (cost=1.0). This is now a per-instance check, not a per-image check.
+    no-match (cost=1.0).
     """
     if not ids1 or not ids2:
         return np.ones((max(1, len(ids1)), max(1, len(ids2))), dtype=np.float32)
@@ -165,9 +163,8 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
             if min(size_a, size_b) == 0:
                 continue
             frac = overlap / min(size_a, size_b)
-            # Per-instance gate: reject if this specific pair has too little overlap
             if frac < min_overlap_frac:
-                C[ai, bi] = 1.0  # no match
+                C[ai, bi] = 1.0
             else:
                 C[ai, bi] = 1.0 - frac
 
@@ -215,13 +212,10 @@ def make_colors(n):
     h = 0.0
     for i in range(n):
         h = (h + golden) % 1.0
-        # Alternate between bright and dark variants
         v = 1.0 if i % 2 == 0 else 0.6
-        s = 1.0
-        # HSV to RGB
         hi = int(h * 6)
         f = h * 6 - hi
-        p = 0.0  # v * (1 - s) = 0
+        p = 0.0
         q = v * (1 - f)
         t = v * f
         hi = hi % 6
@@ -235,8 +229,8 @@ def make_colors(n):
     return colors
 
 
-def save_colored_ply(point_map, masks, filenames, node_to_comp, apple_count, path):
-    colors_by_comp = make_colors(apple_count)
+def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, path):
+    colors_by_comp = make_colors(instance_count)
     N, H, W, _ = point_map.shape
 
     all_points = []
@@ -286,7 +280,7 @@ def save_colored_ply(point_map, masks, filenames, node_to_comp, apple_count, pat
             f.write(p.tobytes())
             f.write(bytes(c))
 
-    print(f"  Colored PLY saved: {path}  ({len(all_points):,} points, {apple_count} colors)")
+    print(f"  Colored PLY saved: {path}  ({len(all_points):,} points, {instance_count} colors)")
 
 
 def main():
@@ -298,7 +292,9 @@ def main():
                         help="Min confidence for a pixel to participate (default: 0.3).")
     parser.add_argument("--filenames",         required=True)
     parser.add_argument("--masks",             required=True)
-    parser.add_argument("--transforms",        required=True)
+    parser.add_argument("--transforms",        default=None,
+                        help="Path to transforms.json for camera-distance filtering. "
+                             "If omitted, all image pairs are used.")
     parser.add_argument("--out",               default=None)
     parser.add_argument("--ground_truth",      type=int, default=113)
     parser.add_argument("--cam_dist_thresh",   type=float, default=999.0)
@@ -308,13 +304,12 @@ def main():
                              "to the matched instance (per-instance gate, default: 5).")
     parser.add_argument("--min_match_overlap", type=float, default=0.01,
                         help="Min overlap fraction for Hungarian match to be accepted "
-                             "(default: 0.01). Note: redundant with min_overlap_pct "
-                             "since per-instance gating is now done in cost matrix.")
+                             "(default: 0.01).")
     parser.add_argument("--save_colored_ply",  action="store_true")
     args = parser.parse_args()
 
     print("=" * 60)
-    print("Apple Counter -- Graph-based Association")
+    print("Instance Counter -- Graph-based Association")
     print("=" * 60)
     print(f"  cam_dist_thresh={args.cam_dist_thresh}  corr_thresh={args.corr_thresh}")
     print(f"  min_overlap_pct={args.min_overlap_pct}% (per-instance)  "
@@ -323,6 +318,8 @@ def main():
         print(f"  conf_thresh={args.conf_thresh}")
     else:
         print(f"  conf filtering: DISABLED")
+    if args.transforms is None:
+        print(f"  transforms: NOT PROVIDED — using all pairs")
 
     print("\nLoading inputs...")
     point_map = load_pointmap(args.pointmap)
@@ -334,7 +331,19 @@ def main():
     filenames = load_filenames(args.filenames)
     N, H, W, _ = point_map.shape
 
-    positions = load_camera_positions(args.transforms, filenames)
+    # Build candidate pairs
+    if args.transforms is not None:
+        positions = load_camera_positions(args.transforms, filenames)
+        pairs = []
+        for i in range(N):
+            for j in range(i + 1, N):
+                d = np.linalg.norm(positions[i] - positions[j])
+                if d < args.cam_dist_thresh:
+                    pairs.append((i, j))
+        print(f"\nCandidate pairs (camera dist < {args.cam_dist_thresh}): {len(pairs)}")
+    else:
+        pairs = [(i, j) for i in range(N) for j in range(i + 1, N)]
+        print(f"\nCandidate pairs (all): {len(pairs)}")
 
     print(f"Loading {N} masks...")
     masks = []
@@ -343,15 +352,6 @@ def main():
         masks.append(load_mask(mpath, W, H))
     loaded = sum(1 for m in masks if m is not None)
     print(f"  Loaded {loaded}/{N} masks")
-
-    pairs = []
-    for i in range(N):
-        for j in range(i + 1, N):
-            d = np.linalg.norm(positions[i] - positions[j])
-            if d < args.cam_dist_thresh:
-                pairs.append((i, j))
-
-    print(f"\nCandidate pairs (camera dist < {args.cam_dist_thresh}): {len(pairs)}")
 
     uf = UnionFind()
     for i in range(N):
@@ -379,7 +379,6 @@ def main():
             conf_i, conf_j, H, W, args.corr_thresh, args.conf_thresh
         )
 
-        # Per-instance overlap gate now inside compute_cost_matrix
         C = compute_cost_matrix(
             masks[i], masks[j], corr_ij, ids_i, ids_j, args.min_overlap_pct
         )
@@ -393,9 +392,9 @@ def main():
         if (pair_idx + 1) % 200 == 0 or pair_idx == len(pairs) - 1:
             print(f"  [{pair_idx+1:4d}/{len(pairs)}] edges: {edges_added}")
 
-    apple_count = uf.components()
+    instance_count = uf.components()
     gt = args.ground_truth
-    error = apple_count - gt
+    error = instance_count - gt
 
     sizes = uf.component_sizes()
     print(f"\n  Component size distribution:")
@@ -411,22 +410,22 @@ def main():
     print(f"  Total nodes:     {total_nodes}")
 
     print(f"\n{'='*60}")
-    print(f"  APPLE COUNT:   {apple_count}")
-    print(f"  GROUND TRUTH:  {gt}")
+    print(f"  INSTANCE COUNT: {instance_count}")
+    print(f"  GROUND TRUTH:   {gt}")
     print(f"  Error: {error:+d}  ({100*error/gt:+.1f}%)")
     print(f"{'='*60}")
 
     if args.save_colored_ply:
         node_to_comp, root_counts = uf.get_component_map()
         ply_path = (os.path.splitext(args.out)[0] + "_colored.ply"
-                    if args.out else "apples_colored.ply")
+                    if args.out else "instances_colored.ply")
         print(f"\nSaving colored PLY...")
-        save_colored_ply(point_map, masks, filenames, node_to_comp, apple_count, ply_path)
+        save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, ply_path)
 
     if args.out:
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
         with open(args.out, "w") as f:
-            f.write(f"apple_count: {apple_count}\n")
+            f.write(f"instance_count: {instance_count}\n")
             f.write(f"ground_truth: {gt}\n")
             f.write(f"error: {error:+d}\n")
             f.write(f"error_pct: {100*error/gt:+.1f}\n")
