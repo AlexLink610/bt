@@ -42,7 +42,7 @@ from collections import Counter
 from PIL import Image
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
-
+import pyransac3d as pyrsc
 
 def load_pointmap(path):
     pm = np.load(path)
@@ -228,6 +228,20 @@ def make_colors(n):
         colors.append([int(r*255), int(g*255), int(b*255)])
     return colors
 
+def fit_sphere_to_component(points, thresh=0.008, max_iter=500):
+    """
+    Fit a sphere to a set of 3D points using RANSAC.
+    Returns (center, radius, inlier_ratio) or None if too few points.
+    """
+    if len(points) < 4:
+        return None
+    sph = pyrsc.Sphere()
+    try:
+        center, radius, inliers = sph.fit(points, thresh=thresh, maxIteration=max_iter)
+        inlier_ratio = len(inliers) / len(points)
+        return center, radius, inlier_ratio
+    except Exception:
+        return None
 
 def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, path):
     colors_by_comp = make_colors(instance_count)
@@ -306,6 +320,10 @@ def main():
                         help="Min overlap fraction for Hungarian match to be accepted "
                              "(default: 0.01).")
     parser.add_argument("--save_colored_ply",  action="store_true")
+    parser.add_argument("--sphere_thresh",     type=float, default=0.008,
+                    help="RANSAC inlier distance for sphere fitting (default: 0.008 units).")
+    parser.add_argument("--sphere_min_inliers", type=float, default=0.0,
+                    help="Min inlier ratio to keep a component (0.0 = disabled, default).")
     args = parser.parse_args()
 
     print("=" * 60)
@@ -397,6 +415,51 @@ def main():
     error = instance_count - gt
 
     sizes = uf.component_sizes()
+    # ── Sphere fitting (post-processing) ─────────────────────────────────────
+    node_to_comp_sf, _ = uf.get_component_map()
+    comp_to_nodes = {}
+    for node, comp_id in node_to_comp_sf.items():
+        comp_to_nodes.setdefault(comp_id, []).append(node)
+
+    sphere_results = {}   # comp_id -> (center, radius, inlier_ratio) or None
+    filtered_out = 0
+
+    if args.sphere_min_inliers > 0.0 or True:   # always run for diagnostics
+        print(f"\nFitting spheres to {len(comp_to_nodes)} components "
+              f"(thresh={args.sphere_thresh})...")
+        for comp_id, nodes in comp_to_nodes.items():
+            pts_list = []
+            for (img_idx, iid) in nodes:
+                if masks[img_idx] is None:
+                    continue
+                mask_flat = masks[img_idx].reshape(-1)
+                pts_flat  = point_map[img_idx].reshape(-1, 3)
+                px = np.where(mask_flat == iid)[0]
+                pts = pts_flat[px]
+                valid = ~np.isnan(pts).any(axis=1)
+                pts_list.append(pts[valid])
+            if not pts_list:
+                continue
+            all_pts = np.concatenate(pts_list, axis=0)
+            sphere_results[comp_id] = fit_sphere_to_component(
+                all_pts, thresh=args.sphere_thresh)
+
+        ratios = [r[2] for r in sphere_results.values() if r is not None]
+        if ratios:
+            print(f"  Sphere inlier ratio — "
+                  f"mean: {np.mean(ratios):.2f}  "
+                  f"median: {np.median(ratios):.2f}  "
+                  f"min: {np.min(ratios):.2f}  "
+                  f"max: {np.max(ratios):.2f}")
+
+    if args.sphere_min_inliers > 0.0:
+        kept = {cid for cid, res in sphere_results.items()
+                if res is not None and res[2] >= args.sphere_min_inliers}
+        filtered_out = len(comp_to_nodes) - len(kept)
+        instance_count = len(kept)
+        print(f"  Filtered {filtered_out} components below "
+              f"inlier ratio {args.sphere_min_inliers:.2f}")
+        print(f"  Remaining after sphere filter: {instance_count}")
     print(f"\n  Component size distribution:")
     print(f"    Total components:        {len(sizes)}")
     print(f"    Largest component:       {sizes[0]} nodes")
