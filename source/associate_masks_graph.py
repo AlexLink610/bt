@@ -296,6 +296,50 @@ def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, 
 
     print(f"  Colored PLY saved: {path}  ({len(all_points):,} points, {instance_count} colors)")
 
+def save_sphere_ply(sphere_results, comp_to_nodes, point_map, masks, instance_count, path):
+    colors = make_colors(instance_count)
+
+    def sample_sphere(center, radius, n=500):
+        phi   = np.random.uniform(0, 2 * np.pi, n)
+        costh = np.random.uniform(-1, 1, n)
+        sinth = np.sqrt(1 - costh**2)
+        return np.stack([
+            center[0] + radius * sinth * np.cos(phi),
+            center[1] + radius * sinth * np.sin(phi),
+            center[2] + radius * costh,
+        ], axis=1)
+
+    all_pts, all_colors = [], []
+    for comp_id, res in sphere_results.items():
+        if res is None:
+            continue
+        center, radius, inlier_ratio = res
+        color = np.array(colors[comp_id], dtype=np.uint8)
+        pts = sample_sphere(center, radius)
+        all_pts.append(pts)
+        all_colors.append(np.tile(color, (len(pts), 1)))
+
+    if not all_pts:
+        print("  No spheres to save.")
+        return
+
+    all_pts    = np.concatenate(all_pts,    axis=0)
+    all_colors = np.concatenate(all_colors, axis=0)
+
+    header = (
+        "ply\nformat binary_little_endian 1.0\n"
+        f"element vertex {len(all_pts)}\n"
+        "property float x\nproperty float y\nproperty float z\n"
+        "property uchar red\nproperty uchar green\nproperty uchar blue\n"
+        "end_header\n"
+    )
+    with open(path, "wb") as f:
+        f.write(header.encode("ascii"))
+        for p, c in zip(all_pts.astype(np.float32), all_colors.astype(np.uint8)):
+            f.write(p.tobytes())
+            f.write(bytes(c))
+    print(f"  Sphere PLY saved: {path}  ({len(all_pts):,} points, {len(sphere_results)} spheres)")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -324,6 +368,7 @@ def main():
                     help="RANSAC inlier distance for sphere fitting (default: 0.008 units).")
     parser.add_argument("--sphere_min_inliers", type=float, default=0.0,
                     help="Min inlier ratio to keep a component (0.0 = disabled, default).")
+    parser.add_argument("--save_sphere_ply", action="store_true")
     args = parser.parse_args()
 
     print("=" * 60)
@@ -475,7 +520,7 @@ def main():
     print(f"\n{'='*60}")
     print(f"  INSTANCE COUNT: {instance_count}")
     print(f"  GROUND TRUTH:   {gt}")
-    print(f"  Error: {error:+d}  ({100*error/gt:+.1f}%)")
+    print(f"  Error: {error:+d}" + (f"  ({100*error/gt:+.1f}%)" if gt > 0 else ""))
     print(f"{'='*60}")
 
     if args.save_colored_ply:
@@ -485,13 +530,19 @@ def main():
         print(f"\nSaving colored PLY...")
         save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, ply_path)
 
+    if args.save_sphere_ply:
+        sphere_ply_path = (os.path.splitext(args.out)[0] + "_spheres.ply"
+                           if args.out else "instances_spheres.ply")
+        print(f"\nSaving sphere PLY...")
+        save_sphere_ply(sphere_results, comp_to_nodes, point_map, masks, instance_count, sphere_ply_path)
+
     if args.out:
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
         with open(args.out, "w") as f:
             f.write(f"instance_count: {instance_count}\n")
             f.write(f"ground_truth: {gt}\n")
             f.write(f"error: {error:+d}\n")
-            f.write(f"error_pct: {100*error/gt:+.1f}\n")
+            f.write(f"error_pct: {100*error/gt:+.1f}\n" if gt > 0 else "error_pct: N/A\n")
             f.write(f"cam_dist_thresh: {args.cam_dist_thresh}\n")
             f.write(f"corr_thresh: {args.corr_thresh}\n")
             f.write(f"min_overlap_pct: {args.min_overlap_pct}\n")
