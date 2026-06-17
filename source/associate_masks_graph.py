@@ -203,6 +203,10 @@ class UnionFind:
         node_to_comp = {x: root_to_id[roots[x]] for x in self.parent}
         return node_to_comp, root_counts
 
+    def get_component_nodes(self, root):
+        """Return all nodes belonging to the component with the given root."""
+        return [x for x in self.parent if self.find(x) == root]
+
 
 def make_colors(n):
     """Generate n maximally distinct colors using golden ratio hue stepping
@@ -449,6 +453,16 @@ def main():
 
         for ai, bi in zip(row_ind, col_ind):
             if C[ai, bi] < (1.0 - args.min_match_overlap):
+                # One-node-per-image-per-component cap:
+                # only merge if neither component already contains a node from the other's image
+                root_i = uf.find((i, ids_i[ai]))
+                root_j = uf.find((j, ids_j[bi]))
+                if root_i == root_j:
+                    continue
+                comp_images_i = {img for (img, _) in uf.get_component_nodes(root_i)}
+                comp_images_j = {img for (img, _) in uf.get_component_nodes(root_j)}
+                if comp_images_i & comp_images_j:
+                    continue  # merging would create two nodes from the same image
                 uf.union((i, ids_i[ai]), (j, ids_j[bi]))
                 edges_added += 1
 
