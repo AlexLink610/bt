@@ -3,6 +3,7 @@ visualize_instance_masks.py  --  Save colorized versions of instance masks.
 
 Each unique instance ID gets a vibrant distinct color.
 Background (0) is black.
+Instance IDs are drawn as numbered circles at the centroid of each instance.
 
 Usage:
     python3 visualize_instance_masks.py \
@@ -14,7 +15,7 @@ import os
 import glob
 import argparse
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 
 def make_colors(n):
@@ -51,7 +52,36 @@ def colorize_mask(mask_path):
     for iid, color in id_to_color.items():
         rgb[mask == iid] = color
 
-    return Image.fromarray(rgb), len(ids)
+    img = Image.fromarray(rgb)
+    draw = ImageDraw.Draw(img)
+
+    # Font size relative to image height
+    font_size = max(16, mask.shape[0] // 25)
+    try:
+        font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+    except Exception:
+        font = ImageFont.load_default()
+
+    for iid in ids:
+        ys, xs = np.where(mask == iid)
+        if len(xs) == 0:
+            continue
+        cx, cy = int(xs.mean()), int(ys.mean())
+        label = str(iid)
+
+        # Black filled circle background
+        r = font_size // 2 + 4
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(0, 0, 0))
+
+        # White text centered on circle
+        bbox = draw.textbbox((0, 0), label, font=font)
+        tw = bbox[2] - bbox[0]
+        th = bbox[3] - bbox[1]
+        draw.text((cx - tw // 2, cy - th // 2), label,
+                  fill=(255, 255, 255), font=font)
+
+    return img, len(ids)
 
 
 def main():
