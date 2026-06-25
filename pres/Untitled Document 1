@@ -1,0 +1,65 @@
+Part 1:
+- Overview CCGS
+	- Input: RGB Images, Instance Masks, Pointmaps for each image
+	- For 2 adjacent images:
+		- For each pixel (i,j) in image 1:
+			- identify the closest pixel in image 2 by minimizing the euclidean distance between pointmaps
+		- generate correspondence / mapping function phi from this
+		- For instance a in mask 1 and instance b in mask 2:
+			- define overlap based on phi (how many pixels of a map to pixels belonging to mask b)
+			- convert overlap into a matching cost(1 -> 0% match, 0 -> 100% match)
+		- find optimal matching over all instance pairs using hungarian algorithm
+			
+- Overview Graph-Based:
+	- Input: Same (RGB Images, Instance Masks, Pointmaps)
+		- optional Input: VGGT Confidence scores, camera poses
+	- For each instance out of all images:
+		- generate graph node
+		- node = (image_index, instance_id)
+	- For all image pairs:
+		- optional: filter by camera distance
+		- restrict to  instance pixels (mask > 0)
+		- compute pixel correspondece (like CCGS)
+			- optional: discard correspondence if 3D distance above threshold
+			- optional: discard low-confidence pixels
+	- compute instance-to-instance overlap (like CCGS)
+	- convert overlap to matching cost (like CCGS)
+		- optional: assign max cost if overlap below threshold
+	- Hungarian matching (like CCGS)
+	- add graph edge between matched instances
+	- count connected components in the graph, each component -> one physical object
+		
+	- optional filters:
+		- discard image pairs with large camera distance (benefits computation effort)
+		- discard pixels with low confidence score 
+		- discard pixel correspondence if 3D distance above threshold
+		- assign max cost to instance match if overlap percentage below threshold
+
+
+
+Part 2:
+Walkthrough with
+- 3 Images with SAM3 masks
+- Do algorithm step by step (from notes, roughly:)
+	- nodes for all instances
+	- compute matches (cost matrix)
+	- hungarian matching
+	- add edges
+	- compute components -> count
+- Issues we can identify already (miscounting due to SAM3 false positives)
+Part3 3:
+- Issues with apple counting usecase:
+	- camera positions etc (from notes)
+- Ideas/Outlook/Fixes
+
+
+TODO
+
+
+- Apple counting:
+	- issues
+
+Maskclustering:
+- project mask point clouds into other frames
+- how many frames can see both objects?
+- if high number, most likely same object

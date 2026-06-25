@@ -1,0 +1,127 @@
+======================================================================
+ALGORITHM WALKTHROUGH DUMP
+======================================================================
+
+──────────────────────────────────────────────────────────────────────
+STEP 1: GRAPH NODES
+──────────────────────────────────────────────────────────────────────
+  Image 0 (00001.png): 4 instances  →  IDs: [1, 2, 3, 4]
+  Image 1 (00002.png): 5 instances  →  IDs: [1, 2, 3, 4, 5]
+  Image 2 (00008.png): 3 instances  →  IDs: [1, 2, 3]
+
+  Total nodes: 12
+
+──────────────────────────────────────────────────────────────────────
+PAIR: Image 0 (00001.png)  ↔  Image 1 (00002.png)
+──────────────────────────────────────────────────────────────────────
+
+STEP 2: Pixel Correspondence
+  corr_thresh = 0.018
+  76.7% of instance pixels in image 0 found a match within threshold
+
+STEP 3: Cost Matrix  (min_overlap_pct = 5.0%)
+              inst_1     inst_2     inst_3     inst_4     inst_5   
+  --------------------------------------------------------------
+  inst_1       [  -  ]  [  -  ]  [  -  ]  [  -  ]  [  -  ]
+  inst_2       [  -  ]  [  -  ]  [  -  ]  [  -  ]  [114.0% ]
+  inst_3       [  -  ]  [  -  ]  [  -  ]  [  -  ]  [  -  ]
+  inst_4       [95.8% ]  [  -  ]  [  -  ]  [  -  ]  [  -  ]
+  (cells show overlap %; '-' = below 5.0% threshold or no correspondence)
+
+STEP 4: Hungarian Matching
+  ✗ NO MATCH: (img0, inst1) → no valid counterpart
+  ✓ MATCH:  (img0, inst2) ↔ (img1, inst5)  overlap=114.0%  cost=-0.140
+  ✗ NO MATCH: (img0, inst3) → no valid counterpart
+  ✓ MATCH:  (img0, inst4) ↔ (img1, inst1)  overlap=95.8%  cost=0.042
+
+STEP 5: Add Edges
+  Edge added: (0, 2) ↔ (1, 5)  (overlap 114.0%)
+  Edge added: (0, 4) ↔ (1, 1)  (overlap 95.8%)
+
+──────────────────────────────────────────────────────────────────────
+PAIR: Image 0 (00001.png)  ↔  Image 2 (00008.png)
+──────────────────────────────────────────────────────────────────────
+
+STEP 2: Pixel Correspondence
+  corr_thresh = 0.018
+  74.8% of instance pixels in image 0 found a match within threshold
+
+STEP 3: Cost Matrix  (min_overlap_pct = 5.0%)
+              inst_1     inst_2     inst_3   
+  ------------------------------------------
+  inst_1       [  -  ]  [  -  ]  [  -  ]
+  inst_2       [95.4% ]  [  -  ]  [  -  ]
+  inst_3       [  -  ]  [  -  ]  [  -  ]
+  inst_4       [  -  ]  [  -  ]  [95.2% ]
+  (cells show overlap %; '-' = below 5.0% threshold or no correspondence)
+
+STEP 4: Hungarian Matching
+  ✗ NO MATCH: (img0, inst1) → no valid counterpart
+  ✓ MATCH:  (img0, inst2) ↔ (img2, inst1)  overlap=95.4%  cost=0.046
+  ✓ MATCH:  (img0, inst4) ↔ (img2, inst3)  overlap=95.2%  cost=0.048
+
+STEP 5: Add Edges
+  Edge added: (0, 2) ↔ (2, 1)  (overlap 95.4%)
+  Edge added: (0, 4) ↔ (2, 3)  (overlap 95.2%)
+
+──────────────────────────────────────────────────────────────────────
+PAIR: Image 1 (00002.png)  ↔  Image 2 (00008.png)
+──────────────────────────────────────────────────────────────────────
+
+STEP 2: Pixel Correspondence
+  corr_thresh = 0.018
+  77.8% of instance pixels in image 1 found a match within threshold
+
+STEP 3: Cost Matrix  (min_overlap_pct = 5.0%)
+              inst_1     inst_2     inst_3   
+  ------------------------------------------
+  inst_1       [  -  ]  [  -  ]  [111.0% ]
+  inst_2       [  -  ]  [85.2% ]  [  -  ]
+  inst_3       [  -  ]  [  -  ]  [  -  ]
+  inst_4       [  -  ]  [  -  ]  [  -  ]
+  inst_5       [92.9% ]  [  -  ]  [  -  ]
+  (cells show overlap %; '-' = below 5.0% threshold or no correspondence)
+
+STEP 4: Hungarian Matching
+  ✓ MATCH:  (img1, inst1) ↔ (img2, inst3)  overlap=111.0%  cost=-0.110
+  ✓ MATCH:  (img1, inst2) ↔ (img2, inst2)  overlap=85.2%  cost=0.148
+  ✓ MATCH:  (img1, inst5) ↔ (img2, inst1)  overlap=92.9%  cost=0.071
+
+STEP 5: Add Edges
+  Edge added: (1, 1) ↔ (2, 3)  (overlap 111.0%)
+  Edge added: (1, 2) ↔ (2, 2)  (overlap 85.2%)
+  Edge added: (1, 5) ↔ (2, 1)  (overlap 92.9%)
+
+──────────────────────────────────────────────────────────────────────
+STEP 6: CONNECTED COMPONENTS
+──────────────────────────────────────────────────────────────────────
+  Component 0: [(0, 2), (1, 5), (2, 1)]
+  Component 1: [(0, 4), (1, 1), (2, 3)]
+  Component 2: [(1, 2), (2, 2)]
+  Component 3: [(0, 1)]
+  Component 4: [(0, 3)]
+  Component 5: [(1, 3)]
+  Component 6: [(1, 4)]
+
+  Total edges:      7
+  Total nodes:      12
+  Components:       7  →  COUNT = 7
+
+======================================================================
+SUMMARY FOR SLIDES
+======================================================================
+  Images:    3
+  Nodes:     12  (one per instance per image)
+  Edges:     7
+  Result:    7 unique objects
+
+  All edges:
+    (0, 2) ↔ (1, 5)  (114.0% overlap)
+    (0, 4) ↔ (1, 1)  (95.8% overlap)
+    (0, 2) ↔ (2, 1)  (95.4% overlap)
+    (0, 4) ↔ (2, 3)  (95.2% overlap)
+    (1, 1) ↔ (2, 3)  (111.0% overlap)
+    (1, 2) ↔ (2, 2)  (85.2% overlap)
+    (1, 5) ↔ (2, 1)  (92.9% overlap)
+(venv) alex@bravo:~/ba/source$ 
+

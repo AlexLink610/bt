@@ -1,0 +1,12 @@
+instance_count: 7
+ground_truth: 5
+error: +2
+error_pct: +40.0
+cam_dist_thresh: 999.0
+corr_thresh: 0.018
+min_overlap_pct: 5.0
+min_match_overlap: 0.01
+conf_thresh: disabled
+edges_added: 7
+largest_component: 3
+singletons: 4
