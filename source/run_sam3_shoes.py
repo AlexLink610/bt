@@ -1,0 +1,49 @@
+import os
+import glob
+import torch
+import numpy as np
+from PIL import Image
+from samgeo import SamGeo3
+
+# Config
+IMAGE_DIR = r"C:\Users\alex\BA\data\old_room_25\color"
+OUTPUT_DIR = r"C:\Users\alex\BA\data\old_room_25\semantics_sam3"
+TARGET_FILES = ["00001.png", "00002.png", "00008.png"]
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+image_paths = [os.path.join(IMAGE_DIR, f) for f in TARGET_FILES]
+image_paths = [p for p in image_paths if os.path.exists(p)]
+print(f"Found {len(image_paths)} images")
+
+sam3 = SamGeo3(backend="meta", load_from_HF=True)
+
+for i, image_path in enumerate(image_paths):
+    fname = os.path.basename(image_path)
+    print(f"[{i+1}/{len(image_paths)}] Processing {fname}...")
+    try:
+        sam3.set_image_batch([image_path])
+        sam3.generate_masks_batch("shoe", min_size=100)
+        masks = sam3.batch_results[0]['masks']
+        count = len(masks)
+        print(f"  -> {count} shoes")
+
+        if count > 0:
+            first_mask = np.array(masks[0]).squeeze()
+            instance_mask = np.zeros(first_mask.shape, dtype=np.uint8)
+            for idx, mask in enumerate(masks, start=1):
+                m = np.array(mask).squeeze().astype(bool)
+                instance_mask[m] = idx
+            stem = os.path.splitext(fname)[0]
+            save_path = os.path.join(OUTPUT_DIR, f"mask_{stem}.png")
+            Image.fromarray(instance_mask).save(save_path)
+            print(f"  -> Saved: {save_path}")
+        else:
+            print(f"  -> No shoes found, no mask saved")
+
+    except Exception as e:
+        print(f"  Error: {e}")
+
+    torch.cuda.empty_cache()
+
+print(f"\nDone! Instance masks saved to {OUTPUT_DIR}")
