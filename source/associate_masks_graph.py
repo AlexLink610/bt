@@ -1,16 +1,5 @@
 """
-associate_masks_graph.py  --  Count apples using graph-based mask association.
-
-Pipeline:
-  - Nodes  = (image_index, instance_id)  one per SAM3 instance per image
-  - Edges  = Hungarian matches between instances across image pairs
-  - Apple-to-apple correspondence: KD-tree built from apple pixels only
-  - Connected components of the graph = unique physical apples
-  - Optional: VGGT confidence filtering to exclude low-quality 3D points
-
-Key changes vs previous version:
-  - min_overlap_pct is now checked PER INSTANCE PAIR, not per image pair.
-  - --transforms is now optional. If not provided, all image pairs are used.
+associate_masks_graph.py  --  Count apples using graph-based mask association + DBSCAN on spheres
 
 Usage:
     python associate_masks_graph.py \
@@ -32,17 +21,28 @@ Optional:
     --min_match_overlap  min overlap fraction to accept a Hungarian match (default: 0.01)
     --ground_truth       ground truth count for error reporting (default: 113)
     --save_colored_ply   save colored PLY where each unique instance has a distinct color
+    --sphere_thresh      RANSAC inlier distance for sphere fitting (default: 0.008)
+    --sphere_min_inliers min inlier ratio to keep a component (0.0 = disabled)
+    --save_sphere_ply    save fitted spheres as PLY
+    --dbscan_merge       run DBSCAN on accepted sphere centers to merge components
+    --dbscan_eps         DBSCAN epsilon for merging sphere centers (default: 0.08)
+    --dbscan_min         DBSCAN min_samples (default: 1)
+    --max_radius         max sphere radius to accept before DBSCAN merge (default: 0.15)
+    --min_radius         min sphere radius to accept before DBSCAN merge (default: 0.01)
 """
 
 import os
 import json
 import argparse
 import numpy as np
+import random   
 from collections import Counter
 from PIL import Image
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 import pyransac3d as pyrsc
+from sklearn.cluster import DBSCAN
+
 
 def load_pointmap(path):
     pm = np.load(path)
@@ -232,6 +232,7 @@ def make_colors(n):
         colors.append([int(r*255), int(g*255), int(b*255)])
     return colors
 
+
 def fit_sphere_to_component(points, thresh=0.008, max_iter=500):
     """
     Fit a sphere to a set of 3D points using RANSAC.
@@ -246,6 +247,7 @@ def fit_sphere_to_component(points, thresh=0.008, max_iter=500):
         return center, radius, inlier_ratio
     except Exception:
         return None
+
 
 def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, path):
     colors_by_comp = make_colors(instance_count)
@@ -299,6 +301,7 @@ def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, 
             f.write(bytes(c))
 
     print(f"  Colored PLY saved: {path}  ({len(all_points):,} points, {instance_count} colors)")
+
 
 def save_sphere_ply(sphere_results, comp_to_nodes, point_map, masks, instance_count, path):
     colors = make_colors(instance_count)
@@ -373,8 +376,21 @@ def main():
     parser.add_argument("--sphere_min_inliers", type=float, default=0.0,
                     help="Min inlier ratio to keep a component (0.0 = disabled, default).")
     parser.add_argument("--save_sphere_ply", action="store_true")
+    parser.add_argument("--dbscan_merge", action="store_true",
+                        help="Run DBSCAN on accepted sphere centers to merge components "
+                             "across the graph (catches missed correspondences).")
+    parser.add_argument("--dbscan_eps", type=float, default=0.08,
+                        help="DBSCAN epsilon for merging sphere centers (default: 0.08).")
+    parser.add_argument("--dbscan_min", type=int, default=1,
+                        help="DBSCAN min_samples (default: 1).")
+    parser.add_argument("--max_radius", type=float, default=0.15,
+                        help="Max sphere radius to accept before DBSCAN merge (default: 0.15).")
+    parser.add_argument("--min_radius", type=float, default=0.01,
+                        help="Min sphere radius to accept before DBSCAN merge (default: 0.01).")
     args = parser.parse_args()
 
+    np.random.seed(42)
+    random.seed(42)
     print("=" * 60)
     print("Instance Counter -- Graph-based Association")
     print("=" * 60)
@@ -383,7 +399,7 @@ def main():
           f"min_match_overlap={args.min_match_overlap}")
     if args.confmap:
         print(f"  conf_thresh={args.conf_thresh}")
-    else:
+    else:   
         print(f"  conf filtering: DISABLED")
     if args.transforms is None:
         print(f"  transforms: NOT PROVIDED — using all pairs")
@@ -471,9 +487,9 @@ def main():
 
     instance_count = uf.components()
     gt = args.ground_truth
-    error = instance_count - gt
 
     sizes = uf.component_sizes()
+
     # ── Sphere fitting (post-processing) ─────────────────────────────────────
     node_to_comp_sf, _ = uf.get_component_map()
     comp_to_nodes = {}
@@ -519,6 +535,39 @@ def main():
         print(f"  Filtered {filtered_out} components below "
               f"inlier ratio {args.sphere_min_inliers:.2f}")
         print(f"  Remaining after sphere filter: {instance_count}")
+
+    # ── DBSCAN merge across components ───────────────────────────────────────
+    if args.dbscan_merge:
+        print(f"\nRunning DBSCAN merge on sphere centers "
+              f"(eps={args.dbscan_eps}, min_samples={args.dbscan_min})...")
+        comp_ids = []
+        centers = []
+        for comp_id, res in sphere_results.items():
+            if res is None:
+                continue
+            center, radius, inlier_ratio = res
+            if radius < args.min_radius or radius > args.max_radius:
+                continue
+            if args.sphere_min_inliers > 0.0 and inlier_ratio < args.sphere_min_inliers:
+                continue
+            comp_ids.append(comp_id)
+            centers.append(center)
+
+        print(f"  Components entering DBSCAN: {len(centers)} "
+              f"(of {len(sphere_results)} total, after radius/inlier filtering)")
+
+        if len(centers) > 0:
+            centers_arr = np.array(centers)
+            db = DBSCAN(eps=args.dbscan_eps, min_samples=args.dbscan_min).fit(centers_arr)
+            labels = db.labels_
+            n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+            n_noise = (labels == -1).sum()
+
+            print(f"  DBSCAN clusters: {n_clusters}  (noise points: {n_noise})")
+            instance_count = n_clusters
+        else:
+            print("  No valid sphere centers for DBSCAN — instance_count unchanged.")
+
     print(f"\n  Component size distribution:")
     print(f"    Total components:        {len(sizes)}")
     print(f"    Largest component:       {sizes[0]} nodes")
@@ -530,6 +579,8 @@ def main():
 
     print(f"\n  Edges added:     {edges_added}")
     print(f"  Total nodes:     {total_nodes}")
+
+    error = instance_count - gt
 
     print(f"\n{'='*60}")
     print(f"  INSTANCE COUNT: {instance_count}")
