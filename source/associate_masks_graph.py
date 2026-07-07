@@ -29,19 +29,27 @@ Optional:
     --dbscan_min         DBSCAN min_samples (default: 1)
     --max_radius         max sphere radius to accept before DBSCAN merge (default: 0.15)
     --min_radius         min sphere radius to accept before DBSCAN merge (default: 0.01)
+    --save_centers_ply   save DBSCAN-merged sphere centers as PLY, colored by cluster
+                         (only used together with --dbscan_merge)
+    --bilateral          enable bilateral (reciprocal) correspondence down-weighting,
+                         penalizes non-reciprocal matches instead of rejecting them
+                         outright (fix for overmatching / false-positive correspondence)
+    --reciprocity_weight penalty weight for non-reciprocal matches (default: 0.3)
 """
 
 import os
 import json
 import argparse
+import random
 import numpy as np
-import random   
 from collections import Counter
 from PIL import Image
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 import pyransac3d as pyrsc
 from sklearn.cluster import DBSCAN
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyransac3d")
 
 
 def load_pointmap(path):
@@ -130,13 +138,43 @@ def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
     return corr
 
 
-def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
+def compute_reciprocity(corr_fwd, pm1, pm2, mask1, mask2, H, W, corr_thresh,
+                        conf1, conf2, conf_thresh):
+    """
+    For each forward match i->j (corr_fwd), check if the reverse nearest-neighbor
+    of pixel j maps back within corr_thresh of pixel i. Returns a boolean array
+    aligned with corr_fwd: True where the match is reciprocal (mutual NN agreement).
+    """
+    corr_bwd = compute_correspondence(pm2, pm1, mask2, mask1, conf2, conf1,
+                                      H, W, corr_thresh, conf_thresh)
+
+    reciprocal = np.zeros(H * W, dtype=bool)
+    valid_fwd = corr_fwd >= 0
+    fwd_idx = np.where(valid_fwd)[0]
+
+    if fwd_idx.size == 0:
+        return reciprocal
+
+    j_targets = corr_fwd[fwd_idx]          # where pixel i in img1 maps to in img2
+    back_targets = corr_bwd[j_targets]     # where that pixel in img2 maps back to in img1
+    reciprocal[fwd_idx] = (back_targets == fwd_idx)
+
+    return reciprocal
+
+
+def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
+                        reciprocal=None, reciprocity_penalty_weight=0.3):
     """
     Build cost matrix for Hungarian matching between instances in image 1 and 2.
 
     min_overlap_pct: per-instance gate — if the fraction of instance a's pixels
     that land on instance b is below this threshold, the pair is treated as
     no-match (cost=1.0).
+
+    reciprocal: optional boolean array (H*W,) aligned with corr's pixel indices.
+    If provided, matches whose pixels are mostly non-reciprocal (mutual nearest
+    neighbor disagreement) get an additive cost penalty rather than outright
+    rejection -- down-weights likely false-positive correspondences.
     """
     if not ids1 or not ids2:
         return np.ones((max(1, len(ids1)), max(1, len(ids2))), dtype=np.float32)
@@ -157,6 +195,10 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
         if len(corr_a_valid) == 0:
             continue
         landed = mask2_flat[corr_a_valid]
+
+        if reciprocal is not None:
+            recip_a_valid = reciprocal[pixels_a[valid]]
+
         for bi, b in enumerate(ids2):
             overlap = int((landed == b).sum())
             size_b = int((mask2_flat == b).sum())
@@ -166,7 +208,14 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct):
             if frac < min_overlap_frac:
                 C[ai, bi] = 1.0
             else:
-                C[ai, bi] = 1.0 - frac
+                base_cost = 1.0 - frac
+                if reciprocal is not None:
+                    matched_recip = recip_a_valid[landed == b]
+                    if len(matched_recip) > 0:
+                        recip_ratio = matched_recip.mean()
+                        penalty = (1.0 - recip_ratio) * reciprocity_penalty_weight
+                        base_cost = min(1.0, base_cost + penalty)
+                C[ai, bi] = base_cost
 
     return C
 
@@ -387,10 +436,20 @@ def main():
                         help="Max sphere radius to accept before DBSCAN merge (default: 0.15).")
     parser.add_argument("--min_radius", type=float, default=0.01,
                         help="Min sphere radius to accept before DBSCAN merge (default: 0.01).")
+    parser.add_argument("--save_centers_ply", default=None,
+                        help="Path to save DBSCAN-merged sphere centers as PLY "
+                             "(colored by DBSCAN cluster, only with --dbscan_merge).")
+    parser.add_argument("--bilateral", action="store_true",
+                        help="Enable bilateral (reciprocal) correspondence down-weighting. "
+                             "Penalizes non-reciprocal matches in the cost matrix instead "
+                             "of rejecting them outright (fix for overmatching).")
+    parser.add_argument("--reciprocity_weight", type=float, default=0.3,
+                        help="Penalty weight for non-reciprocal matches (default: 0.3).")
     args = parser.parse_args()
 
     np.random.seed(42)
     random.seed(42)
+
     print("=" * 60)
     print("Instance Counter -- Graph-based Association")
     print("=" * 60)
@@ -399,8 +458,12 @@ def main():
           f"min_match_overlap={args.min_match_overlap}")
     if args.confmap:
         print(f"  conf_thresh={args.conf_thresh}")
-    else:   
+    else:
         print(f"  conf filtering: DISABLED")
+    if args.bilateral:
+        print(f"  bilateral down-weighting: ENABLED (penalty_weight={args.reciprocity_weight})")
+    else:
+        print(f"  bilateral down-weighting: DISABLED")
     if args.transforms is None:
         print(f"  transforms: NOT PROVIDED — using all pairs")
 
@@ -462,8 +525,16 @@ def main():
             conf_i, conf_j, H, W, args.corr_thresh, args.conf_thresh
         )
 
+        reciprocal_ij = None
+        if args.bilateral:
+            reciprocal_ij = compute_reciprocity(
+                corr_ij, point_map[i], point_map[j], masks[i], masks[j],
+                H, W, args.corr_thresh, conf_i, conf_j, args.conf_thresh
+            )
+
         C = compute_cost_matrix(
-            masks[i], masks[j], corr_ij, ids_i, ids_j, args.min_overlap_pct
+            masks[i], masks[j], corr_ij, ids_i, ids_j, args.min_overlap_pct,
+            reciprocal=reciprocal_ij, reciprocity_penalty_weight=args.reciprocity_weight
         )
         row_ind, col_ind = linear_sum_assignment(C)
 
@@ -565,6 +636,25 @@ def main():
 
             print(f"  DBSCAN clusters: {n_clusters}  (noise points: {n_noise})")
             instance_count = n_clusters
+
+            if args.save_centers_ply:
+                cluster_colors = make_colors(max(labels) + 1) if max(labels) >= 0 else []
+                noise_color = [128, 128, 128]
+                header = (
+                    "ply\nformat binary_little_endian 1.0\n"
+                    f"element vertex {len(centers_arr)}\n"
+                    "property float x\nproperty float y\nproperty float z\n"
+                    "property uchar red\nproperty uchar green\nproperty uchar blue\n"
+                    "end_header\n"
+                )
+                os.makedirs(os.path.dirname(os.path.abspath(args.save_centers_ply)), exist_ok=True)
+                with open(args.save_centers_ply, "wb") as f:
+                    f.write(header.encode("ascii"))
+                    for pt, lbl in zip(centers_arr, labels):
+                        color = noise_color if lbl == -1 else cluster_colors[lbl]
+                        f.write(pt.astype(np.float32).tobytes())
+                        f.write(bytes(color))
+                print(f"  Centers PLY saved: {args.save_centers_ply}  ({len(centers_arr)} points)")
         else:
             print("  No valid sphere centers for DBSCAN — instance_count unchanged.")
 
@@ -590,10 +680,11 @@ def main():
 
     if args.save_colored_ply:
         node_to_comp, root_counts = uf.get_component_map()
+        raw_component_count = len(root_counts)
         ply_path = (os.path.splitext(args.out)[0] + "_colored.ply"
                     if args.out else "instances_colored.ply")
         print(f"\nSaving colored PLY...")
-        save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, ply_path)
+        save_colored_ply(point_map, masks, filenames, node_to_comp, raw_component_count, ply_path)
 
     if args.save_sphere_ply:
         sphere_ply_path = (os.path.splitext(args.out)[0] + "_spheres.ply"
@@ -613,6 +704,8 @@ def main():
             f.write(f"min_overlap_pct: {args.min_overlap_pct}\n")
             f.write(f"min_match_overlap: {args.min_match_overlap}\n")
             f.write(f"conf_thresh: {args.conf_thresh if args.confmap else 'disabled'}\n")
+            f.write(f"bilateral: {args.bilateral}\n")
+            f.write(f"reciprocity_weight: {args.reciprocity_weight if args.bilateral else 'disabled'}\n")
             f.write(f"edges_added: {edges_added}\n")
             f.write(f"largest_component: {sizes[0]}\n")
             f.write(f"singletons: {sum(1 for s in sizes if s==1)}\n")
