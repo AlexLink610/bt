@@ -1,150 +1,153 @@
+"""
+filter_pointmap.py -- Apply radius/statistical outlier removal to the APPLE points
+of a pointmap, writing a new pointmap (.npy) where rejected points are set to NaN.
+
+Unlike filter_pointcloud.py (which outputs a flat .ply), this preserves the
+(N,H,W,3) structure, so the filtered pointmap drops straight into
+count_spheres.py / associate_masks_graph.py with no other changes --
+those scripts already skip NaN points.
+
+Only apple-masked points are considered/filtered; non-apple pixels are passed
+through untouched (they're ignored downstream anyway).
+
+Usage:
+    python filter_pointmap.py \
+        --pointmap  ~/ba/output_vggt/old/t02_360_32v_pointmap.npy \
+        --filenames ~/ba/output_vggt/old/t02_360_32v_filenames.txt \
+        --masks     ~/ba/output_sam/tree_02/semantics_sam3 \
+        --out       ~/ba/output_vggt/old/t02_360_32v_pointmap_r12.npy \
+        --method radius --nb_points 12 --radius 0.0076
+
+Then count as usual, pointing --pointmap at the filtered file:
+    python count_spheres.py --pointmap ..._pointmap_r12.npy --filenames ... --masks ...
+"""
+
 import os
-import sys
+import argparse
 import numpy as np
 from PIL import Image
 
-# ── Config ────────────────────────────────────────────────────────────────────
-MASK_DIR  = "/home/alex/ba/output_sam/tree_02/semantics_sam3_binary"
-IMAGE_DIR = "/home/alex/ba/data/FruitNeRF_Real/FruitNeRF_Dataset/tree_02/images"
-# ──────────────────────────────────────────────────────────────────────────────
+try:
+    import open3d as o3d
+except ImportError:
+    raise SystemExit("open3d not installed. Run:  pip install open3d")
 
 
-def save_ply(points, colors, quality, path):
-    """Save Nx3 points, Nx3 uint8 colors, optional N float32 quality."""
-    has_qual = quality is not None
-    header = (
-        "ply\n"
-        "format binary_little_endian 1.0\n"
-        f"element vertex {len(points)}\n"
-        "property float x\n"
-        "property float y\n"
-        "property float z\n"
-        "property uchar red\n"
-        "property uchar green\n"
-        "property uchar blue\n"
-        + ("property float quality\n" if has_qual else "") +
-        "end_header\n"
-    )
-    with open(path, "wb") as f:
-        f.write(header.encode("ascii"))
-        if has_qual:
-            for p, c, q in zip(points.astype(np.float32),
-                               colors.astype(np.uint8),
-                               quality.astype(np.float32)):
-                f.write(p.tobytes())
-                f.write(c.tobytes())
-                f.write(q.tobytes())
-        else:
-            for p, c in zip(points.astype(np.float32), colors.astype(np.uint8)):
-                f.write(p.tobytes())
-                f.write(c.tobytes())
-    print(f"Saved {len(points)} apple points -> {path}")
+def load_mask(path, W, H):
+    if not os.path.exists(path):
+        return None
+    return np.array(Image.open(path).convert("L").resize((W, H), Image.NEAREST))
+
+
+def mask_path_for(masks_dir, fname):
+    stem = os.path.splitext(os.path.basename(fname))[0]
+    return os.path.join(masks_dir, f"mask_{stem}.png")
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python filter_pointmap.py <input.ply> <filenames.txt>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pointmap",  required=True)
+    parser.add_argument("--filenames", required=True)
+    parser.add_argument("--masks",     required=True)
+    parser.add_argument("--out",       required=True)
+    parser.add_argument("--method", default="radius",
+                        choices=["radius", "statistical", "both"])
+    parser.add_argument("--nb_points",    type=int,   default=12,
+                        help="radius: min neighbours within --radius (default: 12)")
+    parser.add_argument("--radius",       type=float, default=0.0076,
+                        help="radius: neighbourhood radius in scene units")
+    parser.add_argument("--nb_neighbors", type=int,   default=20,
+                        help="statistical: k nearest neighbours")
+    parser.add_argument("--std_ratio",    type=float, default=2.0,
+                        help="statistical: std-dev multiplier")
+    parser.add_argument("--save_ply", default=None,
+                        help="Optional: also save the kept apple points as a .ply")
+    args = parser.parse_args()
 
-    ply_path       = sys.argv[1]
-    filenames_path = sys.argv[2]
-    base           = os.path.splitext(ply_path)[0]
-    output_path    = f"{base}_apples.ply"
-    pointmap_path  = f"{base}_pointmap.npy"
-    confmap_path   = f"{base}_confmap.npy"
+    pm = np.load(args.pointmap)
+    N, H, W, _ = pm.shape
+    print(f"Pointmap: {pm.shape}")
 
-    # ── Sanity checks ─────────────────────────────────────────────────────────
-    if not os.path.exists(pointmap_path):
-        print(f"ERROR: pointmap not found: {pointmap_path}")
-        print("Re-run run_vggt.py to regenerate outputs with the new format.")
-        sys.exit(1)
+    with open(args.filenames) as f:
+        filenames = [l.strip() for l in f if l.strip()]
 
-    # ── Load pointmap ─────────────────────────────────────────────────────────
-    print(f"Loading point map from {pointmap_path} ...")
-    point_map = np.load(pointmap_path)          # (N, H, W, 3) float32, NaNs present
-    N, H, W, _ = point_map.shape
-    print(f"  Point map shape: {point_map.shape}")
-
-    # ── Load confmap (optional) ───────────────────────────────────────────────
-    has_confmap = os.path.exists(confmap_path)
-    if has_confmap:
-        conf_map = np.load(confmap_path)        # (N, H, W) float32 0-1
-        print(f"  Conf map loaded")
-    else:
-        conf_map = None
-        print(f"  No confmap found - quality channel will be absent in output")
-
-    # ── Load filenames ────────────────────────────────────────────────────────
-    with open(filenames_path, "r") as f:
-        filenames = [line.strip() for line in f if line.strip()]
-    print(f"  {len(filenames)} views")
-
-    if len(filenames) != N:
-        print(f"ERROR: filenames.txt has {len(filenames)} entries but pointmap has N={N}")
-        sys.exit(1)
-
-    # ── Sample RGB colors from original images ────────────────────────────────
-    print("Sampling RGB colors from original images...")
-    colors_map = np.zeros((N, H, W, 3), dtype=np.uint8)
-    missing_images = 0
+    # --- Gather apple points and remember where each came from ---------------
+    pts_list, idx_list = [], []   # idx = flat index into (N*H*W)
     for i, fname in enumerate(filenames):
-        img_path = os.path.join(IMAGE_DIR, fname)
-        if not os.path.exists(img_path):
-            missing_images += 1
-            colors_map[i] = 128
+        mask = load_mask(mask_path_for(args.masks, fname), W, H)
+        if mask is None:
             continue
-        img = Image.open(img_path).convert("RGB").resize((W, H), Image.BILINEAR)
-        colors_map[i] = np.array(img)
-
-    if missing_images:
-        print(f"  WARNING: {missing_images}/{N} images not found in IMAGE_DIR")
-
-    # ── Apply SAM masks ───────────────────────────────────────────────────────
-    apple_points  = []
-    apple_colors  = []
-    apple_quality = []
-
-    for i, fname in enumerate(filenames):
-        # Try both .JPG and .png extensions for mask
-        stem      = os.path.splitext(fname)[0]
-        mask_path = os.path.join(MASK_DIR, fname)
-        if not os.path.exists(mask_path):
-            mask_path = os.path.join(MASK_DIR, stem + ".png")
-        if not os.path.exists(mask_path):
-            print(f"  [{i+1}/{N}] MISSING mask for {fname}, skipping")
+        apple = mask.reshape(-1) > 0
+        p = pm[i].reshape(-1, 3)
+        valid = apple & ~np.isnan(p).any(axis=1)
+        idx = np.where(valid)[0]
+        if idx.size == 0:
             continue
+        pts_list.append(p[idx])
+        idx_list.append(idx + i * H * W)   # global flat index
 
-        mask    = Image.open(mask_path).convert("L").resize((W, H), Image.NEAREST)
-        mask_np = np.array(mask) > 0          # (H, W) bool
+    if not pts_list:
+        raise SystemExit("No apple points found -- check masks path/format.")
 
-        pts  = point_map[i][mask_np]          # (K, 3)
-        cols = colors_map[i][mask_np]         # (K, 3)
+    pts = np.concatenate(pts_list, axis=0)
+    gidx = np.concatenate(idx_list, axis=0)
+    n0 = len(pts)
+    print(f"Apple points: {n0:,}")
 
-        # Remove NaN points
-        valid = ~np.isnan(pts).any(axis=1)
-        pts   = pts[valid]
-        cols  = cols[valid]
+    # --- Filter --------------------------------------------------------------
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(pts.astype(np.float64))
 
-        apple_points.append(pts)
-        apple_colors.append(cols)
+    keep = np.arange(n0)
 
-        if conf_map is not None:
-            qual = conf_map[i][mask_np][valid]
-            apple_quality.append(qual)
+    if args.method in ("statistical", "both"):
+        before = len(keep)
+        _, sel = pcd.remove_statistical_outlier(
+            nb_neighbors=args.nb_neighbors, std_ratio=args.std_ratio)
+        keep = keep[sel]
+        pcd = pcd.select_by_index(sel)
+        print(f"Statistical (k={args.nb_neighbors}, std={args.std_ratio}): "
+              f"{before:,} -> {len(keep):,}  "
+              f"(removed {before-len(keep):,}, {100*(before-len(keep))/before:.1f}%)")
 
-        print(f"  [{i+1}/{N}] {fname}: {len(pts):,} apple points")
+    if args.method in ("radius", "both"):
+        before = len(keep)
+        _, sel = pcd.remove_radius_outlier(
+            nb_points=args.nb_points, radius=args.radius)
+        keep = keep[sel]
+        pcd = pcd.select_by_index(sel)
+        print(f"Radius (nb_points={args.nb_points}, radius={args.radius}): "
+              f"{before:,} -> {len(keep):,}  "
+              f"(removed {before-len(keep):,}, {100*(before-len(keep))/before:.1f}%)")
 
-    if not apple_points:
-        print("No apple points found! Check MASK_DIR and filenames.")
-        sys.exit(1)
+    n1 = len(keep)
+    print(f"\nTotal apple points: {n0:,} -> {n1:,}  "
+          f"(removed {n0-n1:,}, {100*(n0-n1)/n0:.1f}%)")
 
-    all_points  = np.concatenate(apple_points,  axis=0)
-    all_colors  = np.concatenate(apple_colors,  axis=0)
-    all_quality = np.concatenate(apple_quality, axis=0) if apple_quality else None
+    # --- Write filtered pointmap (rejected apple points -> NaN) --------------
+    removed_global = np.setdiff1d(gidx, gidx[keep], assume_unique=False)
+    pm_out = pm.copy()
+    flat = pm_out.reshape(-1, 3)
+    flat[removed_global] = np.nan
+    pm_out = flat.reshape(N, H, W, 3)
 
-    print(f"\nTotal apple points: {len(all_points):,}")
-    save_ply(all_points, all_colors, all_quality, output_path)
-    print(f"Done! -> {output_path}")
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    np.save(args.out, pm_out.astype(np.float32))
+    print(f"Saved filtered pointmap: {args.out}")
+
+    if args.save_ply:
+        kept_pts = pts[keep].astype(np.float32)
+        header = (
+            "ply\nformat binary_little_endian 1.0\n"
+            f"element vertex {len(kept_pts)}\n"
+            "property float x\nproperty float y\nproperty float z\n"
+            "end_header\n"
+        )
+        with open(args.save_ply, "wb") as f:
+            f.write(header.encode("ascii"))
+            for p in kept_pts:
+                f.write(p.tobytes())
+        print(f"Saved kept-points PLY: {args.save_ply}  ({len(kept_pts):,} points)")
 
 
 if __name__ == "__main__":

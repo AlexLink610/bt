@@ -351,6 +351,56 @@ def save_colored_ply(point_map, masks, filenames, node_to_comp, instance_count, 
 
     print(f"  Colored PLY saved: {path}  ({len(all_points):,} points, {instance_count} colors)")
 
+def save_merged_ply(point_map, masks, filenames, node_to_comp,
+                    comp_to_cluster, n_clusters, path):
+    """Color each apple point by its FINAL DBSCAN cluster id (post-merge).
+    Components dropped before DBSCAN (bad sphere/radius) are colored gray."""
+    colors = make_colors(max(1, n_clusters))
+    drop_color = [110, 110, 110]
+    all_pts, all_cols = [], []
+
+    for i, fname in enumerate(filenames):
+        if masks[i] is None:
+            continue
+        mask_flat = masks[i].reshape(-1)
+        pts_flat = point_map[i].reshape(-1, 3)
+        for iid in get_instance_ids(masks[i]):
+            node = (i, iid)
+            if node not in node_to_comp:
+                continue
+            comp_id = node_to_comp[node]
+            lbl = comp_to_cluster.get(comp_id, None)
+            col = drop_color if lbl is None or lbl < 0 else colors[lbl]
+
+            px = np.where(mask_flat == iid)[0]
+            pts = pts_flat[px]
+            pts = pts[~np.isnan(pts).any(axis=1)]
+            if len(pts) == 0:
+                continue
+            all_pts.append(pts)
+            all_cols.append(np.tile(col, (len(pts), 1)))
+
+    if not all_pts:
+        print("  No points to save!")
+        return
+    all_pts = np.concatenate(all_pts, axis=0)
+    all_cols = np.concatenate(all_cols, axis=0)
+
+    header = (
+        "ply\nformat binary_little_endian 1.0\n"
+        f"element vertex {len(all_pts)}\n"
+        "property float x\nproperty float y\nproperty float z\n"
+        "property uchar red\nproperty uchar green\nproperty uchar blue\n"
+        "end_header\n"
+    )
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(header.encode("ascii"))
+        for p, c in zip(all_pts.astype(np.float32), all_cols.astype(np.uint8)):
+            f.write(p.tobytes())
+            f.write(bytes(c))
+    print(f"  Merged PLY saved: {path}  ({len(all_pts):,} points, "
+          f"{n_clusters} clusters + gray=dropped)")
 
 def save_sphere_ply(sphere_results, comp_to_nodes, point_map, masks, instance_count, path):
     colors = make_colors(instance_count)
@@ -439,6 +489,9 @@ def main():
     parser.add_argument("--save_centers_ply", default=None,
                         help="Path to save DBSCAN-merged sphere centers as PLY "
                              "(colored by DBSCAN cluster, only with --dbscan_merge).")
+    parser.add_argument("--save_merged_ply", default=None,
+                        help="Save apple points colored by FINAL DBSCAN cluster "
+                             "(shows actual merges; requires --dbscan_merge).")
     parser.add_argument("--bilateral", action="store_true",
                         help="Enable bilateral (reciprocal) correspondence down-weighting. "
                              "Penalizes non-reciprocal matches in the cost matrix instead "
@@ -636,6 +689,13 @@ def main():
 
             print(f"  DBSCAN clusters: {n_clusters}  (noise points: {n_noise})")
             instance_count = n_clusters
+
+            comp_to_cluster = {cid: int(lbl) for cid, lbl in zip(comp_ids, labels)}
+
+            if args.save_merged_ply:
+                print(f"\nSaving merged (final-cluster) PLY...")
+                save_merged_ply(point_map, masks, filenames, node_to_comp_sf,
+                                comp_to_cluster, n_clusters, args.save_merged_ply)
 
             if args.save_centers_ply:
                 cluster_colors = make_colors(max(labels) + 1) if max(labels) >= 0 else []

@@ -13,3 +13,5 @@ __pycache__/
 
 # Models
 vggt_weights/
+/source/.idea/
+/renders/
