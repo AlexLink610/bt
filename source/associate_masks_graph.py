@@ -1,26 +1,28 @@
 """
-associate_masks_graph.py  --  Count apples using graph-based mask association + DBSCAN on spheres
+associate_masks_graph.py  --  Count apples using graph-based mask association,
+sphere fitting, and a final clustering merge.
+
+Pipeline stages (visualize all four with --save_stages_ply PREFIX):
+    1. raw (image, instance) nodes
+    2. graph association -> connected components
+    3. sphere fit + radius/inlier filter (dropped components reported & grayed)
+    4. clustering merge on sphere centers -> final count
 
 Usage:
     python associate_masks_graph.py \
-        --pointmap   ~/ba/output_vggt/t02_360_64v_pointmap.npy \
-        --filenames  ~/ba/output_vggt/t02_360_64v_filenames.txt \
+        --pointmap   ~/ba/output_vggt/t02_360_32v_pointmap.npy \
+        --filenames  ~/ba/output_vggt/t02_360_32v_filenames.txt \
         --masks      ~/ba/output_sam/tree_02/semantics_sam3 \
-        --out        ~/ba/output_vggt/t02_360_64v_graph_count.txt
+        --corr_thresh 0.020 --ground_truth 113 \
+        --cluster_method agglomerative --cluster_dist 0.05 \
+        --save_stages_ply ~/ba/output_vggt/t02_stages \
+        --out ~/ba/output_vggt/t02_result.txt
 
-Key optional flags:
-    --confmap / --conf_thresh      confidence filtering (usually counterproductive)
-    --corr_thresh                  max 3D distance for a valid pixel correspondence
-    --dbscan_merge / --dbscan_eps  merge components via DBSCAN on sphere centers
-    --max_radius / --min_radius    sphere radius bounds (pre-DBSCAN filter)
-    --bilateral                    reciprocal-correspondence down-weighting
-    --save_stages_ply PREFIX       write 4 PLYs showing the cloud at each stage:
-                                     <PREFIX>_1_nodes.ply     raw (image,instance) nodes
-                                     <PREFIX>_2_graph.ply     after graph association
-                                     <PREFIX>_3_filtered.ply  after sphere/radius filter
-                                                              (dropped = gray)
-                                     <PREFIX>_4_merged.ply    after DBSCAN (final clusters)
-    --save_merged_ply PATH         only the final-cluster-colored PLY
+Clustering methods:
+    dbscan         density-based; merges if ANY point is within eps of ANY other
+                   -> prone to CHAINING across the canopy (giant merges)
+    agglomerative  complete-linkage with distance_threshold; merges only if ALL
+                   member pairs are within the threshold -> cannot chain
 """
 
 import os
@@ -33,7 +35,7 @@ from PIL import Image
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
 import pyransac3d as pyrsc
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyransac3d")
 
@@ -49,8 +51,8 @@ def load_pointmap(path):
 def load_confmap(path):
     cm = np.load(path)
     print(f"  Confmap shape:  {cm.shape}  ({cm.nbytes / 1e6:.1f} MB)")
-    pcts = np.percentile(cm, [10, 25, 50, 75, 90])
-    print(f"  Conf percentiles [10,25,50,75,90]: {pcts.round(3)}")
+    print(f"  Conf percentiles [10,25,50,75,90]: "
+          f"{np.percentile(cm, [10,25,50,75,90]).round(3)}")
     return cm
 
 
@@ -91,10 +93,7 @@ def load_camera_positions(transforms_path, fnames):
 
 def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
                            H, W, corr_thresh, conf_thresh):
-    """For each apple pixel in image 1, find nearest apple pixel in image 2
-    via KD-tree. Returns flat array: pixel index -> pixel index in image 2 (-1 = none)."""
     pts2_flat = pm2.reshape(-1, 3)
-
     apple2_flat = (mask2.reshape(-1) > 0) if mask2 is not None else np.ones(H * W, bool)
     valid2 = apple2_flat & ~np.isnan(pts2_flat).any(axis=1)
     if conf2 is not None:
@@ -111,37 +110,30 @@ def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
     if conf1 is not None:
         valid1_flat &= (conf1.reshape(-1) >= conf_thresh)
     apple1_idx = np.where(apple1_flat & valid1_flat)[0]
-
     if apple1_idx.size == 0:
         return np.full(H * W, -1, dtype=np.int32)
 
     distances, nn = tree.query(pm1.reshape(-1, 3)[apple1_idx], workers=-1)
-    nn_flat = valid2_idx[nn]
-
     corr = np.full(H * W, -1, dtype=np.int32)
     good = distances < corr_thresh
-    corr[apple1_idx[good]] = nn_flat[good]
+    corr[apple1_idx[good]] = valid2_idx[nn][good]
     return corr
 
 
 def compute_reciprocity(corr_fwd, pm1, pm2, mask1, mask2, H, W, corr_thresh,
                         conf1, conf2, conf_thresh):
-    """True where a forward match i->j is reciprocal (mutual nearest neighbour)."""
     corr_bwd = compute_correspondence(pm2, pm1, mask2, mask1, conf2, conf1,
                                       H, W, corr_thresh, conf_thresh)
     reciprocal = np.zeros(H * W, dtype=bool)
     fwd_idx = np.where(corr_fwd >= 0)[0]
     if fwd_idx.size == 0:
         return reciprocal
-    j_targets = corr_fwd[fwd_idx]
-    back_targets = corr_bwd[j_targets]
-    reciprocal[fwd_idx] = (back_targets == fwd_idx)
+    reciprocal[fwd_idx] = (corr_bwd[corr_fwd[fwd_idx]] == fwd_idx)
     return reciprocal
 
 
 def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
                         reciprocal=None, reciprocity_penalty_weight=0.3):
-    """Hungarian cost matrix between instances of image 1 and image 2."""
     if not ids1 or not ids2:
         return np.ones((max(1, len(ids1)), max(1, len(ids2))), dtype=np.float32)
 
@@ -152,16 +144,15 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
 
     for ai, a in enumerate(ids1):
         pixels_a = np.where(mask1_flat == a)[0]
-        size_a = len(pixels_a)
-        if size_a == 0:
+        if len(pixels_a) == 0:
             continue
+        size_a = len(pixels_a)
         corr_a = corr[pixels_a]
         valid = corr_a >= 0
         corr_a_valid = corr_a[valid]
         if len(corr_a_valid) == 0:
             continue
         landed = mask2_flat[corr_a_valid]
-
         if reciprocal is not None:
             recip_a_valid = reciprocal[pixels_a[valid]]
 
@@ -176,11 +167,10 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
             else:
                 base_cost = 1.0 - frac
                 if reciprocal is not None:
-                    matched_recip = recip_a_valid[landed == b]
-                    if len(matched_recip) > 0:
-                        recip_ratio = matched_recip.mean()
+                    mr = recip_a_valid[landed == b]
+                    if len(mr) > 0:
                         base_cost = min(1.0, base_cost +
-                                        (1.0 - recip_ratio) * reciprocity_penalty_weight)
+                                        (1.0 - mr.mean()) * reciprocity_penalty_weight)
                 C[ai, bi] = base_cost
     return C
 
@@ -207,24 +197,21 @@ class UnionFind:
         return len(set(self.find(x) for x in self.parent))
 
     def component_sizes(self):
-        roots = [self.find(x) for x in self.parent]
-        return sorted(Counter(roots).values(), reverse=True)
+        return sorted(Counter([self.find(x) for x in self.parent]).values(), reverse=True)
 
     def get_component_map(self):
         roots = {x: self.find(x) for x in self.parent}
         root_counts = Counter(roots.values())
-        sorted_roots = [r for r, _ in root_counts.most_common()]
-        root_to_id = {r: i for i, r in enumerate(sorted_roots)}
+        root_to_id = {r: i for i, (r, _) in enumerate(root_counts.most_common())}
         return {x: root_to_id[roots[x]] for x in self.parent}, root_counts
 
     def get_component_nodes(self, root):
         return [x for x in self.parent if self.find(x) == root]
 
 
-# ────────────────────────────── colors / plys ──────────────────────────────
+# ──────────────────────────── colors / PLY ─────────────────────────────────
 
 def make_colors(n):
-    """n maximally distinct colors via golden-ratio hue stepping."""
     colors = []
     golden = 0.618033988749895
     h = 0.0
@@ -263,7 +250,6 @@ def _write_ply(pts, cols, path):
 
 
 def save_stage_ply(point_map, masks, filenames, node_color_fn, path):
-    """Generic stage writer. node_color_fn((img_idx, iid)) -> [r,g,b] or None to skip."""
     all_pts, all_cols = [], []
     for i in range(len(filenames)):
         if i >= len(masks) or masks[i] is None:
@@ -274,8 +260,7 @@ def save_stage_ply(point_map, masks, filenames, node_color_fn, path):
             col = node_color_fn((i, iid))
             if col is None:
                 continue
-            px = np.where(mask_flat == iid)[0]
-            pts = pts_flat[px]
+            pts = pts_flat[np.where(mask_flat == iid)[0]]
             pts = pts[~np.isnan(pts).any(axis=1)]
             if len(pts) == 0:
                 continue
@@ -287,20 +272,12 @@ def save_stage_ply(point_map, masks, filenames, node_color_fn, path):
     _write_ply(np.concatenate(all_pts, axis=0), np.concatenate(all_cols, axis=0), path)
 
 
-def save_colored_ply(point_map, masks, filenames, node_to_comp, n_colors, path):
-    colors = make_colors(max(1, n_colors))
-    save_stage_ply(point_map, masks, filenames,
-                   lambda n: colors[node_to_comp[n]] if n in node_to_comp else None,
-                   path)
-
-
 def fit_sphere_to_component(points, thresh=0.008, max_iter=500):
-    """RANSAC sphere fit. Returns (center, radius, inlier_ratio) or None."""
     if len(points) < 4:
         return None
-    sph = pyrsc.Sphere()
     try:
-        center, radius, inliers = sph.fit(points, thresh=thresh, maxIteration=max_iter)
+        center, radius, inliers = pyrsc.Sphere().fit(points, thresh=thresh,
+                                                     maxIteration=max_iter)
         return center, radius, len(inliers) / len(points)
     except Exception:
         return None
@@ -313,21 +290,18 @@ def save_sphere_ply(sphere_results, n_colors, path):
         phi = np.random.uniform(0, 2 * np.pi, n)
         costh = np.random.uniform(-1, 1, n)
         sinth = np.sqrt(1 - costh ** 2)
-        return np.stack([
-            center[0] + radius * sinth * np.cos(phi),
-            center[1] + radius * sinth * np.sin(phi),
-            center[2] + radius * costh,
-        ], axis=1)
+        return np.stack([center[0] + radius * sinth * np.cos(phi),
+                         center[1] + radius * sinth * np.sin(phi),
+                         center[2] + radius * costh], axis=1)
 
     all_pts, all_cols = [], []
     for comp_id, res in sphere_results.items():
         if res is None:
             continue
         center, radius, _ = res
-        col = np.array(colors[comp_id % len(colors)], dtype=np.uint8)
         pts = sample_sphere(center, radius)
         all_pts.append(pts)
-        all_cols.append(np.tile(col, (len(pts), 1)))
+        all_cols.append(np.tile(colors[comp_id % len(colors)], (len(pts), 1)))
     if not all_pts:
         print("  No spheres to save.")
         return
@@ -338,39 +312,54 @@ def save_sphere_ply(sphere_results, n_colors, path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pointmap",          required=True)
-    parser.add_argument("--filenames",         required=True)
-    parser.add_argument("--masks",             required=True)
-    parser.add_argument("--confmap",           default=None)
-    parser.add_argument("--conf_thresh",       type=float, default=0.3)
-    parser.add_argument("--transforms",        default=None)
-    parser.add_argument("--out",               default=None)
-    parser.add_argument("--ground_truth",      type=int, default=113)
-    parser.add_argument("--cam_dist_thresh",   type=float, default=999.0)
-    parser.add_argument("--corr_thresh",       type=float, default=0.010)
-    parser.add_argument("--min_overlap_pct",   type=float, default=5.0)
-    parser.add_argument("--min_match_overlap", type=float, default=0.01)
-    parser.add_argument("--sphere_thresh",     type=float, default=0.008)
+    parser.add_argument("--pointmap",           required=True)
+    parser.add_argument("--filenames",          required=True)
+    parser.add_argument("--masks",              required=True)
+    parser.add_argument("--confmap",            default=None)
+    parser.add_argument("--conf_thresh",        type=float, default=0.3)
+    parser.add_argument("--transforms",         default=None)
+    parser.add_argument("--out",                default=None)
+    parser.add_argument("--ground_truth",       type=int,   default=113)
+    parser.add_argument("--cam_dist_thresh",    type=float, default=999.0)
+    parser.add_argument("--corr_thresh",        type=float, default=0.010)
+    parser.add_argument("--min_overlap_pct",    type=float, default=5.0)
+    parser.add_argument("--min_match_overlap",  type=float, default=0.01,
+                        help="Raise to make the GRAPH less merge-aggressive (stage 1->2).")
+    parser.add_argument("--sphere_thresh",      type=float, default=0.008)
     parser.add_argument("--sphere_min_inliers", type=float, default=0.0)
-    parser.add_argument("--dbscan_merge",      action="store_true")
-    parser.add_argument("--dbscan_eps",        type=float, default=0.08)
-    parser.add_argument("--dbscan_min",        type=int,   default=1)
-    parser.add_argument("--max_radius",        type=float, default=0.15)
-    parser.add_argument("--min_radius",        type=float, default=0.01)
-    parser.add_argument("--bilateral",         action="store_true")
+    parser.add_argument("--max_radius",         type=float, default=0.15,
+                        help="Stage 3: drop components with sphere radius above this.")
+    parser.add_argument("--min_radius",         type=float, default=0.01,
+                        help="Stage 3: drop components with sphere radius below this.")
+    # ---- clustering (stage 4) ----
+    parser.add_argument("--cluster_method", default="none",
+                        choices=["none", "dbscan", "agglomerative"],
+                        help="Stage-4 merge: 'dbscan' (chains!) or 'agglomerative' "
+                             "(complete-linkage, cannot chain). Default: none.")
+    parser.add_argument("--dbscan_merge", action="store_true",
+                        help="Back-compat alias for --cluster_method dbscan.")
+    parser.add_argument("--dbscan_eps",   type=float, default=0.08,
+                        help="DBSCAN eps (used when --cluster_method dbscan).")
+    parser.add_argument("--dbscan_min",   type=int,   default=1)
+    parser.add_argument("--cluster_dist", type=float, default=None,
+                        help="Agglomerative distance_threshold (max cluster diameter). "
+                             "Defaults to --dbscan_eps if unset.")
+    # ---- misc ----
+    parser.add_argument("--bilateral",          action="store_true")
     parser.add_argument("--reciprocity_weight", type=float, default=0.3)
-    # visualization
-    parser.add_argument("--save_colored_ply",  action="store_true",
-                        help="PLY colored by graph component (pre-DBSCAN).")
-    parser.add_argument("--save_sphere_ply",   action="store_true")
-    parser.add_argument("--save_centers_ply",  default=None,
-                        help="PLY of DBSCAN-merged sphere centers.")
-    parser.add_argument("--save_merged_ply",   default=None,
-                        help="PLY colored by FINAL DBSCAN cluster.")
-    parser.add_argument("--save_stages_ply",   default=None,
-                        help="Path PREFIX; writes _1_nodes / _2_graph / _3_filtered "
-                             "/ _4_merged PLYs showing each pipeline stage.")
+    parser.add_argument("--save_colored_ply",   action="store_true")
+    parser.add_argument("--save_sphere_ply",    action="store_true")
+    parser.add_argument("--save_centers_ply",   default=None)
+    parser.add_argument("--save_merged_ply",    default=None)
+    parser.add_argument("--save_stages_ply",    default=None,
+                        help="PREFIX for _1_nodes / _2_graph / _3_filtered / _4_merged PLYs.")
     args = parser.parse_args()
+
+    # back-compat: --dbscan_merge implies dbscan
+    if args.dbscan_merge and args.cluster_method == "none":
+        args.cluster_method = "dbscan"
+    do_cluster = args.cluster_method != "none"
+    cluster_dist = args.cluster_dist if args.cluster_dist is not None else args.dbscan_eps
 
     np.random.seed(42)
     random.seed(42)
@@ -378,10 +367,15 @@ def main():
     print("=" * 60)
     print("Instance Counter -- Graph-based Association")
     print("=" * 60)
-    print(f"  cam_dist_thresh={args.cam_dist_thresh}  corr_thresh={args.corr_thresh}")
-    print(f"  min_overlap_pct={args.min_overlap_pct}%  min_match_overlap={args.min_match_overlap}")
+    print(f"  corr_thresh={args.corr_thresh}  min_overlap_pct={args.min_overlap_pct}%  "
+          f"min_match_overlap={args.min_match_overlap}")
+    print(f"  radius bounds: [{args.min_radius}, {args.max_radius}]  "
+          f"sphere_thresh={args.sphere_thresh}")
+    print(f"  cluster_method={args.cluster_method}" +
+          (f"  eps={args.dbscan_eps}" if args.cluster_method == "dbscan" else
+           f"  cluster_dist={cluster_dist}" if args.cluster_method == "agglomerative" else ""))
     print(f"  conf filtering: {args.conf_thresh if args.confmap else 'DISABLED'}")
-    print(f"  bilateral: {'ENABLED (w=%s)' % args.reciprocity_weight if args.bilateral else 'DISABLED'}")
+    print(f"  bilateral: {('ENABLED (w=%s)' % args.reciprocity_weight) if args.bilateral else 'DISABLED'}")
 
     print("\nLoading inputs...")
     point_map = load_pointmap(args.pointmap)
@@ -409,7 +403,7 @@ def main():
     total_nodes = len(uf.parent)
     print(f"Total instance nodes: {total_nodes}")
 
-    # ── graph association ───────────────────────────────────────────────────
+    # ── stage 1 -> 2: graph association ─────────────────────────────────────
     print(f"\nProcessing {len(pairs)} pairs...")
     edges_added = 0
     for pair_idx, (i, j) in enumerate(pairs):
@@ -425,25 +419,22 @@ def main():
         reciprocal_ij = None
         if args.bilateral:
             reciprocal_ij = compute_reciprocity(corr_ij, point_map[i], point_map[j],
-                                                masks[i], masks[j], H, W,
-                                                args.corr_thresh, conf_i, conf_j,
-                                                args.conf_thresh)
+                                                masks[i], masks[j], H, W, args.corr_thresh,
+                                                conf_i, conf_j, args.conf_thresh)
 
         C = compute_cost_matrix(masks[i], masks[j], corr_ij, ids_i, ids_j,
                                 args.min_overlap_pct, reciprocal=reciprocal_ij,
                                 reciprocity_penalty_weight=args.reciprocity_weight)
         row_ind, col_ind = linear_sum_assignment(C)
-
         for ai, bi in zip(row_ind, col_ind):
             if C[ai, bi] < (1.0 - args.min_match_overlap):
-                root_i = uf.find((i, ids_i[ai]))
-                root_j = uf.find((j, ids_j[bi]))
+                root_i, root_j = uf.find((i, ids_i[ai])), uf.find((j, ids_j[bi]))
                 if root_i == root_j:
                     continue
                 imgs_i = {img for (img, _) in uf.get_component_nodes(root_i)}
                 imgs_j = {img for (img, _) in uf.get_component_nodes(root_j)}
                 if imgs_i & imgs_j:
-                    continue  # one node per image per component
+                    continue
                 uf.union((i, ids_i[ai]), (j, ids_j[bi]))
                 edges_added += 1
 
@@ -454,14 +445,16 @@ def main():
     gt = args.ground_truth
     sizes = uf.component_sizes()
 
-    node_to_comp_sf, root_counts = uf.get_component_map()
+    node_to_comp, root_counts = uf.get_component_map()
     comp_to_nodes = {}
-    for node, comp_id in node_to_comp_sf.items():
+    for node, comp_id in node_to_comp.items():
         comp_to_nodes.setdefault(comp_id, []).append(node)
 
-    # ── sphere fitting ──────────────────────────────────────────────────────
+    # ── stage 2 -> 3: sphere fit + radius/inlier filter ─────────────────────
     print(f"\nFitting spheres to {len(comp_to_nodes)} components (thresh={args.sphere_thresh})...")
     sphere_results = {}
+    drop_few_pts = 0        # <4 points, RANSAC impossible
+    drop_fit_fail = 0       # RANSAC raised / degenerate
     for comp_id, nodes in comp_to_nodes.items():
         pts_list = []
         for (img_idx, iid) in nodes:
@@ -472,9 +465,17 @@ def main():
             pts = pts_flat[np.where(mask_flat == iid)[0]]
             pts_list.append(pts[~np.isnan(pts).any(axis=1)])
         if not pts_list:
+            drop_few_pts += 1
             continue
-        sphere_results[comp_id] = fit_sphere_to_component(
-            np.concatenate(pts_list, axis=0), thresh=args.sphere_thresh)
+        all_pts = np.concatenate(pts_list, axis=0)
+        if len(all_pts) < 4:
+            drop_few_pts += 1
+            sphere_results[comp_id] = None
+            continue
+        res = fit_sphere_to_component(all_pts, thresh=args.sphere_thresh)
+        if res is None:
+            drop_fit_fail += 1
+        sphere_results[comp_id] = res
 
     ratios = [r[2] for r in sphere_results.values() if r is not None]
     if ratios:
@@ -482,52 +483,84 @@ def main():
               f"median: {np.median(ratios):.2f}  min: {np.min(ratios):.2f}  "
               f"max: {np.max(ratios):.2f}")
 
+    # Select survivors + count WHY the rest were dropped
+    kept_comp_ids, centers = [], []
+    drop_small_r = drop_big_r = drop_inliers = 0
+    radii_all = []
+    for comp_id, res in sphere_results.items():
+        if res is None:
+            continue
+        center, radius, inlier_ratio = res
+        radii_all.append(radius)
+        if radius < args.min_radius:
+            drop_small_r += 1
+            continue
+        if radius > args.max_radius:
+            drop_big_r += 1
+            continue
+        if args.sphere_min_inliers > 0.0 and inlier_ratio < args.sphere_min_inliers:
+            drop_inliers += 1
+            continue
+        kept_comp_ids.append(comp_id)
+        centers.append(center)
+
+    n_dropped = len(comp_to_nodes) - len(kept_comp_ids)
+    print(f"\n  Stage 3 filter: {len(comp_to_nodes)} -> {len(kept_comp_ids)} components "
+          f"(dropped {n_dropped}, {100*n_dropped/max(1,len(comp_to_nodes)):.1f}%)")
+    print(f"    dropped, <4 points (no fit possible): {drop_few_pts}")
+    print(f"    dropped, RANSAC fit failed:           {drop_fit_fail}")
+    print(f"    dropped, radius < {args.min_radius}:            {drop_small_r}")
+    print(f"    dropped, radius > {args.max_radius}:            {drop_big_r}")
     if args.sphere_min_inliers > 0.0:
-        kept = {cid for cid, res in sphere_results.items()
-                if res is not None and res[2] >= args.sphere_min_inliers}
-        instance_count = len(kept)
-        print(f"  Filtered {len(comp_to_nodes) - len(kept)} components below "
-              f"inlier ratio {args.sphere_min_inliers:.2f}")
-        print(f"  Remaining after sphere filter: {instance_count}")
+        print(f"    dropped, inlier_ratio < {args.sphere_min_inliers}:     {drop_inliers}")
+    if radii_all:
+        rp = np.percentile(radii_all, [5, 25, 50, 75, 95])
+        print(f"    fitted radius percentiles [5,25,50,75,95]: {rp.round(4)}")
 
-    # ── DBSCAN merge ────────────────────────────────────────────────────────
-    comp_ids, centers, comp_to_cluster, labels, n_clusters = [], [], {}, None, 0
-    if args.dbscan_merge:
-        print(f"\nRunning DBSCAN merge on sphere centers "
-              f"(eps={args.dbscan_eps}, min_samples={args.dbscan_min})...")
-        for comp_id, res in sphere_results.items():
-            if res is None:
-                continue
-            center, radius, inlier_ratio = res
-            if radius < args.min_radius or radius > args.max_radius:
-                continue
-            if args.sphere_min_inliers > 0.0 and inlier_ratio < args.sphere_min_inliers:
-                continue
-            comp_ids.append(comp_id)
-            centers.append(center)
+    if not do_cluster:
+        instance_count = len(kept_comp_ids)
 
-        print(f"  Components entering DBSCAN: {len(centers)} "
-              f"(of {len(sphere_results)} total, after radius/inlier filtering)")
-
+    # ── stage 3 -> 4: clustering merge ──────────────────────────────────────
+    comp_to_cluster, labels, n_clusters = {}, None, 0
+    if do_cluster:
+        print(f"\nStage 4 merge: {args.cluster_method} on {len(centers)} sphere centers")
         if len(centers) > 0:
             centers_arr = np.array(centers)
-            labels = DBSCAN(eps=args.dbscan_eps, min_samples=args.dbscan_min).fit(centers_arr).labels_
+            if args.cluster_method == "dbscan":
+                print(f"  DBSCAN(eps={args.dbscan_eps}, min_samples={args.dbscan_min})")
+                labels = DBSCAN(eps=args.dbscan_eps,
+                                min_samples=args.dbscan_min).fit(centers_arr).labels_
+            else:
+                print(f"  AgglomerativeClustering(linkage=complete, "
+                      f"distance_threshold={cluster_dist})")
+                labels = AgglomerativeClustering(
+                    n_clusters=None, distance_threshold=cluster_dist,
+                    linkage="complete", metric="euclidean").fit(centers_arr).labels_
+
             n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-            n_noise = int((labels == -1).sum())
-            print(f"  DBSCAN clusters: {n_clusters}  (noise points: {n_noise})")
+            n_noise = int((labels == -1).sum()) if -1 in labels else 0
+            print(f"  Clusters: {n_clusters}" +
+                  (f"  (noise: {n_noise})" if n_noise else ""))
             instance_count = n_clusters
-            comp_to_cluster = {cid: int(lbl) for cid, lbl in zip(comp_ids, labels)}
+            comp_to_cluster = {cid: int(l) for cid, l in zip(kept_comp_ids, labels)}
+
+            # cluster size stats -- reveals over-merging
+            csizes = sorted(Counter(labels[labels >= 0]).values(), reverse=True)
+            if csizes:
+                print(f"  Components per cluster — max: {csizes[0]}  "
+                      f"median: {csizes[len(csizes)//2]}  "
+                      f"singletons: {sum(1 for s in csizes if s == 1)}")
 
             if args.save_centers_ply:
-                cluster_colors = make_colors(max(1, n_clusters))
-                cols = np.array([[110, 110, 110] if l < 0 else cluster_colors[l]
-                                 for l in labels], dtype=np.uint8)
+                ccols = make_colors(max(1, n_clusters))
+                cols = np.array([[110, 110, 110] if l < 0 else ccols[l] for l in labels],
+                                dtype=np.uint8)
                 _write_ply(centers_arr, cols, args.save_centers_ply)
         else:
-            print("  No valid sphere centers for DBSCAN — instance_count unchanged.")
+            print("  No valid sphere centers -- skipping merge.")
 
     # ── stats ───────────────────────────────────────────────────────────────
-    print(f"\n  Component size distribution:")
+    print(f"\n  Component size distribution (graph):")
     print(f"    Total components:        {len(sizes)}")
     print(f"    Largest component:       {sizes[0]} nodes")
     print(f"    2nd largest:             {sizes[1] if len(sizes) > 1 else 0} nodes")
@@ -544,67 +577,60 @@ def main():
     print(f"  Error: {error:+d}" + (f"  ({100*error/gt:+.1f}%)" if gt > 0 else ""))
     print(f"{'='*60}")
 
-    # ── visualization ───────────────────────────────────────────────────────
+    # ── stage PLYs ──────────────────────────────────────────────────────────
     comp_colors = make_colors(max(1, len(comp_to_nodes)))
-    kept_comps = set(comp_ids) if args.dbscan_merge else set(sphere_results.keys())
+    kept_set = set(kept_comp_ids)
+
+    def _c4(n):
+        if n not in node_to_comp:
+            return None
+        lbl = comp_to_cluster.get(node_to_comp[n])
+        return [110, 110, 110] if lbl is None or lbl < 0 else _c4.colors[lbl]
 
     if args.save_stages_ply:
         pre = args.save_stages_ply
         print(f"\nSaving pipeline-stage PLYs...")
 
-        # 1. raw nodes -- every (image, instance) its own color
-        node_list = sorted(node_to_comp_sf.keys())
+        node_list = sorted(node_to_comp.keys())
         node_ids = {n: k for k, n in enumerate(node_list)}
         node_colors = make_colors(max(1, len(node_list)))
         save_stage_ply(point_map, masks, filenames,
                        lambda n: node_colors[node_ids[n]] if n in node_ids else None,
                        f"{pre}_1_nodes.ply")
 
-        # 2. after graph -- color by connected component
         save_stage_ply(point_map, masks, filenames,
-                       lambda n: comp_colors[node_to_comp_sf[n]] if n in node_to_comp_sf else None,
+                       lambda n: comp_colors[node_to_comp[n]] if n in node_to_comp else None,
                        f"{pre}_2_graph.ply")
 
-        # 3. after sphere/radius filter -- dropped components gray
         def _c3(n):
-            if n not in node_to_comp_sf:
+            if n not in node_to_comp:
                 return None
-            cid = node_to_comp_sf[n]
-            return comp_colors[cid] if cid in kept_comps else [110, 110, 110]
+            cid = node_to_comp[n]
+            return comp_colors[cid] if cid in kept_set else [110, 110, 110]
         save_stage_ply(point_map, masks, filenames, _c3, f"{pre}_3_filtered.ply")
 
-        # 4. after DBSCAN -- color by final cluster
-        if args.dbscan_merge and len(centers) > 0:
-            clus_colors = make_colors(max(1, n_clusters))
-            def _c4(n):
-                if n not in node_to_comp_sf:
-                    return None
-                lbl = comp_to_cluster.get(node_to_comp_sf[n])
-                return [110, 110, 110] if lbl is None or lbl < 0 else clus_colors[lbl]
+        if do_cluster and len(centers) > 0:
+            _c4.colors = make_colors(max(1, n_clusters))
             save_stage_ply(point_map, masks, filenames, _c4, f"{pre}_4_merged.ply")
 
-    if args.save_merged_ply and args.dbscan_merge and len(centers) > 0:
-        clus_colors = make_colors(max(1, n_clusters))
-        def _cm(n):
-            if n not in node_to_comp_sf:
-                return None
-            lbl = comp_to_cluster.get(node_to_comp_sf[n])
-            return [110, 110, 110] if lbl is None or lbl < 0 else clus_colors[lbl]
+    if args.save_merged_ply and do_cluster and len(centers) > 0:
+        _c4.colors = make_colors(max(1, n_clusters))
         print(f"\nSaving merged (final-cluster) PLY...")
-        save_stage_ply(point_map, masks, filenames, _cm, args.save_merged_ply)
+        save_stage_ply(point_map, masks, filenames, _c4, args.save_merged_ply)
 
     if args.save_colored_ply:
         ply_path = (os.path.splitext(args.out)[0] + "_colored.ply"
                     if args.out else "instances_colored.ply")
         print(f"\nSaving colored PLY (graph components)...")
-        save_colored_ply(point_map, masks, filenames, node_to_comp_sf,
-                         len(root_counts), ply_path)
+        save_stage_ply(point_map, masks, filenames,
+                       lambda n: comp_colors[node_to_comp[n]] if n in node_to_comp else None,
+                       ply_path)
 
     if args.save_sphere_ply:
-        sphere_ply_path = (os.path.splitext(args.out)[0] + "_spheres.ply"
-                           if args.out else "instances_spheres.ply")
+        sp = (os.path.splitext(args.out)[0] + "_spheres.ply"
+              if args.out else "instances_spheres.ply")
         print(f"\nSaving sphere PLY...")
-        save_sphere_ply(sphere_results, len(comp_to_nodes), sphere_ply_path)
+        save_sphere_ply(sphere_results, len(comp_to_nodes), sp)
 
     # ── results file ────────────────────────────────────────────────────────
     if args.out:
@@ -620,18 +646,22 @@ def main():
             f.write(f"min_match_overlap: {args.min_match_overlap}\n")
             f.write(f"sphere_thresh: {args.sphere_thresh}\n")
             f.write(f"sphere_min_inliers: {args.sphere_min_inliers}\n")
-            f.write(f"dbscan_merge: {args.dbscan_merge}\n")
-            f.write(f"dbscan_eps: {args.dbscan_eps}\n")
-            f.write(f"dbscan_min: {args.dbscan_min}\n")
             f.write(f"min_radius: {args.min_radius}\n")
             f.write(f"max_radius: {args.max_radius}\n")
+            f.write(f"cluster_method: {args.cluster_method}\n")
+            f.write(f"dbscan_eps: {args.dbscan_eps}\n")
+            f.write(f"cluster_dist: {cluster_dist}\n")
             f.write(f"conf_thresh: {args.conf_thresh if args.confmap else 'disabled'}\n")
             f.write(f"bilateral: {args.bilateral}\n")
-            f.write(f"reciprocity_weight: {args.reciprocity_weight if args.bilateral else 'disabled'}\n")
             f.write(f"edges_added: {edges_added}\n")
             f.write(f"total_nodes: {total_nodes}\n")
             f.write(f"raw_components: {len(comp_to_nodes)}\n")
-            f.write(f"components_into_dbscan: {len(centers)}\n")
+            f.write(f"components_kept_stage3: {len(kept_comp_ids)}\n")
+            f.write(f"dropped_few_points: {drop_few_pts}\n")
+            f.write(f"dropped_fit_failed: {drop_fit_fail}\n")
+            f.write(f"dropped_radius_small: {drop_small_r}\n")
+            f.write(f"dropped_radius_large: {drop_big_r}\n")
+            f.write(f"dropped_inliers: {drop_inliers}\n")
             f.write(f"largest_component: {sizes[0]}\n")
             f.write(f"singletons: {sum(1 for s in sizes if s == 1)}\n")
         print(f"\nResults saved: {args.out}")
