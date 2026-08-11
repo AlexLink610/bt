@@ -8,21 +8,22 @@ Pipeline stages (visualize all four with --save_stages_ply PREFIX):
     3. sphere fit + radius/inlier filter (dropped components reported & grayed)
     4. clustering merge on sphere centers -> final count
 
+Matching parameters:
+    --corr_3d_thresh   max 3D distance (scene units) for two pixels to count as
+                       corresponding in the graph step (formerly --corr_thresh)
+    --min_match_overlap  after Hungarian, a match becomes an edge only if its
+                       instance overlap fraction exceeds this (the ONLY overlap
+                       filter now -- the pre-Hungarian gate was removed, so the
+                       Hungarian optimizes over the full cost matrix)
+
 Usage:
     python associate_masks_graph.py \
         --pointmap   ~/ba/output_vggt/t02_360_32v_pointmap.npy \
         --filenames  ~/ba/output_vggt/t02_360_32v_filenames.txt \
         --masks      ~/ba/output_sam/tree_02/semantics_sam3 \
-        --corr_thresh 0.020 --ground_truth 113 \
-        --cluster_method agglomerative --cluster_dist 0.05 \
-        --save_stages_ply ~/ba/output_vggt/t02_stages \
+        --corr_3d_thresh 0.020 --min_match_overlap 0.05 \
+        --cluster_method agglomerative --cluster_dist 0.16 \
         --out ~/ba/output_vggt/t02_result.txt
-
-Clustering methods:
-    dbscan         density-based; merges if ANY point is within eps of ANY other
-                   -> prone to CHAINING across the canopy (giant merges)
-    agglomerative  complete-linkage with distance_threshold; merges only if ALL
-                   member pairs are within the threshold -> cannot chain
 """
 
 import os
@@ -92,7 +93,7 @@ def load_camera_positions(transforms_path, fnames):
 # ─────────────────────────── correspondence ────────────────────────────────
 
 def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
-                           H, W, corr_thresh, conf_thresh):
+                           H, W, corr_3d_thresh, conf_thresh):
     pts2_flat = pm2.reshape(-1, 3)
     apple2_flat = (mask2.reshape(-1) > 0) if mask2 is not None else np.ones(H * W, bool)
     valid2 = apple2_flat & ~np.isnan(pts2_flat).any(axis=1)
@@ -115,15 +116,15 @@ def compute_correspondence(pm1, pm2, mask1, mask2, conf1, conf2,
 
     distances, nn = tree.query(pm1.reshape(-1, 3)[apple1_idx], workers=-1)
     corr = np.full(H * W, -1, dtype=np.int32)
-    good = distances < corr_thresh
+    good = distances < corr_3d_thresh
     corr[apple1_idx[good]] = valid2_idx[nn][good]
     return corr
 
 
-def compute_reciprocity(corr_fwd, pm1, pm2, mask1, mask2, H, W, corr_thresh,
+def compute_reciprocity(corr_fwd, pm1, pm2, mask1, mask2, H, W, corr_3d_thresh,
                         conf1, conf2, conf_thresh):
     corr_bwd = compute_correspondence(pm2, pm1, mask2, mask1, conf2, conf1,
-                                      H, W, corr_thresh, conf_thresh)
+                                      H, W, corr_3d_thresh, conf_thresh)
     reciprocal = np.zeros(H * W, dtype=bool)
     fwd_idx = np.where(corr_fwd >= 0)[0]
     if fwd_idx.size == 0:
@@ -132,7 +133,7 @@ def compute_reciprocity(corr_fwd, pm1, pm2, mask1, mask2, H, W, corr_thresh,
     return reciprocal
 
 
-def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
+def compute_cost_matrix(mask1, mask2, corr, ids1, ids2,
                         reciprocal=None, reciprocity_penalty_weight=0.3):
     if not ids1 or not ids2:
         return np.ones((max(1, len(ids1)), max(1, len(ids2))), dtype=np.float32)
@@ -140,7 +141,6 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
     mask1_flat = mask1.reshape(-1)
     mask2_flat = mask2.reshape(-1)
     C = np.ones((len(ids1), len(ids2)), dtype=np.float32)
-    min_overlap_frac = min_overlap_pct / 100.0
 
     for ai, a in enumerate(ids1):
         pixels_a = np.where(mask1_flat == a)[0]
@@ -161,17 +161,14 @@ def compute_cost_matrix(mask1, mask2, corr, ids1, ids2, min_overlap_pct,
             size_b = int((mask2_flat == b).sum())
             if min(size_a, size_b) == 0:
                 continue
-            frac = overlap / min(size_a, size_b)
-            if frac < min_overlap_frac:
-                C[ai, bi] = 1.0
-            else:
-                base_cost = 1.0 - frac
-                if reciprocal is not None:
-                    mr = recip_a_valid[landed == b]
-                    if len(mr) > 0:
-                        base_cost = min(1.0, base_cost +
-                                        (1.0 - mr.mean()) * reciprocity_penalty_weight)
-                C[ai, bi] = base_cost
+            frac = min(overlap / min(size_a, size_b), 1.0)
+            base_cost = 1.0 - frac
+            if reciprocal is not None and frac > 0:
+                mr = recip_a_valid[landed == b]
+                if len(mr) > 0:
+                    base_cost = min(1.0, base_cost +
+                                    (1.0 - mr.mean()) * reciprocity_penalty_weight)
+            C[ai, bi] = base_cost
     return C
 
 
@@ -321,10 +318,13 @@ def main():
     parser.add_argument("--out",                default=None)
     parser.add_argument("--ground_truth",       type=int,   default=113)
     parser.add_argument("--cam_dist_thresh",    type=float, default=999.0)
-    parser.add_argument("--corr_thresh",        type=float, default=0.010)
-    parser.add_argument("--min_overlap_pct",    type=float, default=5.0)
+    parser.add_argument("--corr_3d_thresh",     type=float, default=0.010,
+                        help="Max 3D distance (scene units) for two pixels to "
+                             "correspond in the graph step.")
     parser.add_argument("--min_match_overlap",  type=float, default=0.01,
-                        help="Raise to make the GRAPH less merge-aggressive (stage 1->2).")
+                        help="After Hungarian, a match becomes an edge only if its "
+                             "instance overlap fraction exceeds this. This is now the "
+                             "ONLY overlap filter (pre-Hungarian gate removed).")
     parser.add_argument("--sphere_thresh",      type=float, default=0.008)
     parser.add_argument("--sphere_min_inliers", type=float, default=0.0)
     parser.add_argument("--max_radius",         type=float, default=0.15,
@@ -338,8 +338,7 @@ def main():
                              "(complete-linkage, cannot chain). Default: none.")
     parser.add_argument("--dbscan_merge", action="store_true",
                         help="Back-compat alias for --cluster_method dbscan.")
-    parser.add_argument("--dbscan_eps",   type=float, default=0.08,
-                        help="DBSCAN eps (used when --cluster_method dbscan).")
+    parser.add_argument("--dbscan_eps",   type=float, default=0.08)
     parser.add_argument("--dbscan_min",   type=int,   default=1)
     parser.add_argument("--cluster_dist", type=float, default=None,
                         help="Agglomerative distance_threshold (max cluster diameter). "
@@ -355,7 +354,6 @@ def main():
                         help="PREFIX for _1_nodes / _2_graph / _3_filtered / _4_merged PLYs.")
     args = parser.parse_args()
 
-    # back-compat: --dbscan_merge implies dbscan
     if args.dbscan_merge and args.cluster_method == "none":
         args.cluster_method = "dbscan"
     do_cluster = args.cluster_method != "none"
@@ -367,8 +365,7 @@ def main():
     print("=" * 60)
     print("Instance Counter -- Graph-based Association")
     print("=" * 60)
-    print(f"  corr_thresh={args.corr_thresh}  min_overlap_pct={args.min_overlap_pct}%  "
-          f"min_match_overlap={args.min_match_overlap}")
+    print(f"  corr_3d_thresh={args.corr_3d_thresh}  min_match_overlap={args.min_match_overlap}")
     print(f"  radius bounds: [{args.min_radius}, {args.max_radius}]  "
           f"sphere_thresh={args.sphere_thresh}")
     print(f"  cluster_method={args.cluster_method}" +
@@ -415,15 +412,15 @@ def main():
 
         corr_ij = compute_correspondence(point_map[i], point_map[j], masks[i], masks[j],
                                          conf_i, conf_j, H, W,
-                                         args.corr_thresh, args.conf_thresh)
+                                         args.corr_3d_thresh, args.conf_thresh)
         reciprocal_ij = None
         if args.bilateral:
             reciprocal_ij = compute_reciprocity(corr_ij, point_map[i], point_map[j],
-                                                masks[i], masks[j], H, W, args.corr_thresh,
+                                                masks[i], masks[j], H, W, args.corr_3d_thresh,
                                                 conf_i, conf_j, args.conf_thresh)
 
         C = compute_cost_matrix(masks[i], masks[j], corr_ij, ids_i, ids_j,
-                                args.min_overlap_pct, reciprocal=reciprocal_ij,
+                                reciprocal=reciprocal_ij,
                                 reciprocity_penalty_weight=args.reciprocity_weight)
         row_ind, col_ind = linear_sum_assignment(C)
         for ai, bi in zip(row_ind, col_ind):
@@ -453,8 +450,8 @@ def main():
     # ── stage 2 -> 3: sphere fit + radius/inlier filter ─────────────────────
     print(f"\nFitting spheres to {len(comp_to_nodes)} components (thresh={args.sphere_thresh})...")
     sphere_results = {}
-    drop_few_pts = 0        # <4 points, RANSAC impossible
-    drop_fit_fail = 0       # RANSAC raised / degenerate
+    drop_few_pts = 0
+    drop_fit_fail = 0
     for comp_id, nodes in comp_to_nodes.items():
         pts_list = []
         for (img_idx, iid) in nodes:
@@ -483,7 +480,6 @@ def main():
               f"median: {np.median(ratios):.2f}  min: {np.min(ratios):.2f}  "
               f"max: {np.max(ratios):.2f}")
 
-    # Select survivors + count WHY the rest were dropped
     kept_comp_ids, centers = [], []
     drop_small_r = drop_big_r = drop_inliers = 0
     radii_all = []
@@ -521,7 +517,7 @@ def main():
         instance_count = len(kept_comp_ids)
 
     # ── stage 3 -> 4: clustering merge ──────────────────────────────────────
-    comp_to_cluster, labels, n_clusters = {}, None, 0
+    comp_ids, comp_to_cluster, labels, n_clusters = kept_comp_ids, {}, None, 0
     if do_cluster:
         print(f"\nStage 4 merge: {args.cluster_method} on {len(centers)} sphere centers")
         if len(centers) > 0:
@@ -539,12 +535,10 @@ def main():
 
             n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
             n_noise = int((labels == -1).sum()) if -1 in labels else 0
-            print(f"  Clusters: {n_clusters}" +
-                  (f"  (noise: {n_noise})" if n_noise else ""))
+            print(f"  Clusters: {n_clusters}" + (f"  (noise: {n_noise})" if n_noise else ""))
             instance_count = n_clusters
             comp_to_cluster = {cid: int(l) for cid, l in zip(kept_comp_ids, labels)}
 
-            # cluster size stats -- reveals over-merging
             csizes = sorted(Counter(labels[labels >= 0]).values(), reverse=True)
             if csizes:
                 print(f"  Components per cluster — max: {csizes[0]}  "
@@ -641,8 +635,7 @@ def main():
             f.write(f"error: {error:+d}\n")
             f.write(f"error_pct: {100*error/gt:+.1f}\n" if gt > 0 else "error_pct: N/A\n")
             f.write(f"pointmap: {args.pointmap}\n")
-            f.write(f"corr_thresh: {args.corr_thresh}\n")
-            f.write(f"min_overlap_pct: {args.min_overlap_pct}\n")
+            f.write(f"corr_3d_thresh: {args.corr_3d_thresh}\n")
             f.write(f"min_match_overlap: {args.min_match_overlap}\n")
             f.write(f"sphere_thresh: {args.sphere_thresh}\n")
             f.write(f"sphere_min_inliers: {args.sphere_min_inliers}\n")

@@ -1,0 +1,380 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{egger20203d}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=09d023a6de0a8da73d8f587a4860d728}{%
+           family={Egger},
+           familyi={E\bibinitperiod},
+           given={Bernhard},
+           giveni={B\bibinitperiod}}}%
+        {{hash=4156382d4f1dd5eab1ee56eadf676d7b}{%
+           family={Smith},
+           familyi={S\bibinitperiod},
+           given={William\bibnamedelima AP},
+           giveni={W\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=9222d9cbcc4e1dafc4ba63738fd6678a}{%
+           family={Tewari},
+           familyi={T\bibinitperiod},
+           given={Ayush},
+           giveni={A\bibinitperiod}}}%
+        {{hash=61b8e2de82c00532400a1613ce62f441}{%
+           family={Wuhrer},
+           familyi={W\bibinitperiod},
+           given={Stefanie},
+           giveni={S\bibinitperiod}}}%
+        {{hash=47b518958ff9e0bb9c7a55f2013d5eeb}{%
+           family={Zollhoefer},
+           familyi={Z\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f7c2e66ebcd3200d1a160b3fbe332e15}{%
+           family={Beeler},
+           familyi={B\bibinitperiod},
+           given={Thabo},
+           giveni={T\bibinitperiod}}}%
+        {{hash=0a6890a43e6042e7c0f290c5092fa52e}{%
+           family={Bernard},
+           familyi={B\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod}}}%
+        {{hash=c66ff93381cb614348e2b8fa98c0628f}{%
+           family={Bolkart},
+           familyi={B\bibinitperiod},
+           given={Timo},
+           giveni={T\bibinitperiod}}}%
+        {{hash=0f1cb4253a1bef9ec3e16b06144b1ab0}{%
+           family={Kortylewski},
+           familyi={K\bibinitperiod},
+           given={Adam},
+           giveni={A\bibinitperiod}}}%
+        {{hash=d6613f8b212691dd7a32eb344a25ccea}{%
+           family={Romdhani},
+           familyi={R\bibinitperiod},
+           given={Sami},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {ACM New York, NY, USA}%
+      }
+      \strng{namehash}{5963593b1202c57b573101940e34b7c8}
+      \strng{fullhash}{aa7ebd58fddc91be12723b780bdb1636}
+      \strng{bibnamehash}{aa7ebd58fddc91be12723b780bdb1636}
+      \strng{authorbibnamehash}{aa7ebd58fddc91be12723b780bdb1636}
+      \strng{authornamehash}{5963593b1202c57b573101940e34b7c8}
+      \strng{authorfullhash}{aa7ebd58fddc91be12723b780bdb1636}
+      \field{sortinit}{E}
+      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Transactions on Graphics (ToG)}
+      \field{number}{5}
+      \field{title}{3d morphable face models—past, present, and future}
+      \field{volume}{39}
+      \field{year}{2020}
+      \field{pages}{1\bibrangedash 38}
+      \range{pages}{38}
+    \endentry
+    \entry{guenther2012aging}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=2ae49ddc941fd750d6b8100df89b8210}{%
+           family={Günther},
+           familyi={G\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod}}}%
+        {{hash=f20691a29b2144e5cfae77275a2b3557}{%
+           family={Rohmer},
+           familyi={R\bibinitperiod},
+           given={Kai},
+           giveni={K\bibinitperiod}}}%
+        {{hash=ac958a5f522fba18b93178d370c88dff}{%
+           family={Grosch},
+           familyi={G\bibinitperiod},
+           given={Thorsten},
+           giveni={T\bibinitperiod}}}%
+      }
+      \name{editor}{5}{}{%
+        {{hash=fe9c4886922d0dc4b62709fdad478c05}{%
+           family={Goesele},
+           familyi={G\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ac958a5f522fba18b93178d370c88dff}{%
+           family={Grosch},
+           familyi={G\bibinitperiod},
+           given={Thorsten},
+           giveni={T\bibinitperiod}}}%
+        {{hash=33b44fbf490784a6c357bad802d6f7a8}{%
+           family={Theisel},
+           familyi={T\bibinitperiod},
+           given={Holger},
+           giveni={H\bibinitperiod}}}%
+        {{hash=6028c8b43cce554582a80b01a75d71fc}{%
+           family={Toennies},
+           familyi={T\bibinitperiod},
+           given={Klaus},
+           giveni={K\bibinitperiod}}}%
+        {{hash=15fd1e7c29987cac73f37f294fb02d86}{%
+           family={Preim},
+           familyi={P\bibinitperiod},
+           given={Bernhard},
+           giveni={B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {The Eurographics Association}%
+      }
+      \strng{namehash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{fullhash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{bibnamehash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{authorbibnamehash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{authornamehash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{authorfullhash}{a948e6cb32a6c3d334b06711664cc5b9}
+      \strng{editorbibnamehash}{c86300071f16c3764fc88c0b58c5c532}
+      \strng{editornamehash}{e81d45b708d387ccad46ec0faef89bc8}
+      \strng{editorfullhash}{c86300071f16c3764fc88c0b58c5c532}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Vision, Modeling and Visualization}
+      \field{isbn}{978-3-905673-95-1}
+      \field{title}{{GPU}-accelerated Interactive Material Aging}
+      \field{year}{2012}
+      \field{pages}{63\bibrangedash 70}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.2312/PE/VMV/VMV12/063-070
+      \endverb
+    \endentry
+    \entry{harrerfranke2023inovis}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=b5940dee8b48e005b2d411a4802aae65}{%
+           family={Harrer},
+           familyi={H\bibinitperiod},
+           given={Mathias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=027a4711618a91a654ee193f9fdbb196}{%
+           family={Franke},
+           familyi={F\bibinitperiod},
+           given={Linus},
+           giveni={L\bibinitperiod}}}%
+        {{hash=9572c06bd00372d1de7e762d8a52db93}{%
+           family={Fink},
+           familyi={F\bibinitperiod},
+           given={Laura},
+           giveni={L\bibinitperiod}}}%
+        {{hash=519ca105c52edb2f0fe9064c9e347e63}{%
+           family={Stamminger},
+           familyi={S\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f00f5b106911208d3ce4499cc4fbe2f3}{%
+           family={Weyrich},
+           familyi={W\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Sydney, NSW, Australia}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{5c4b2d043be2d7285140dd9a1afb886b}
+      \strng{fullhash}{87339e613e561a12b68efa3d1e0e39ad}
+      \strng{bibnamehash}{87339e613e561a12b68efa3d1e0e39ad}
+      \strng{authorbibnamehash}{87339e613e561a12b68efa3d1e0e39ad}
+      \strng{authornamehash}{5c4b2d043be2d7285140dd9a1afb886b}
+      \strng{authorfullhash}{87339e613e561a12b68efa3d1e0e39ad}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Novel-view synthesis is an ill-posed problem in that it requires inference of previously unseen information. Recently, reviving the traditional field of image-based rendering, neural methods proved particularly suitable for this interpolation/extrapolation task; however, they often require a-priori scene-completeness or costly preprocessing steps and generally suffer from long (scene-specific) training times. Our work draws from recent progress in neural spatio-temporal supersampling to enhance a state-of-the-art neural renderer's ability to infer novel-view information at inference time. We adapt a supersampling architecture [Xiao et al. 2020], which resamples previously rendered frames, to instead recombine nearby camera images in a multi-view dataset. These input frames are warped into a joint target frame, guided by the most recent (point-based) scene representation, followed by neural interpolation. The resulting architecture gains sufficient robustness to significantly improve transferability to previously unseen datasets. In particular, this enables novel applications for neural rendering where dynamically streamed content is directly incorporated in a (neural) image-based reconstruction of a scene. As we will show, our method reaches state-of-the-art performance when compared to previous works that rely on static and sufficiently densely sampled scenes; in addition, we demonstrate our system's particular suitability for dynamically streamed content, where our approach is able to produce high-fidelity novel-view synthesis even with significantly fewer available frames than competing neural methods.}
+      \field{booktitle}{SIGGRAPH Asia Conference Papers}
+      \field{day}{12}
+      \field{endday}{15}
+      \field{endmonth}{12}
+      \field{endyear}{2023}
+      \field{month}{12}
+      \field{title}{Inovis: Instant Novel-View Synthesis}
+      \field{year}{2023}
+      \field{enddateera}{ce}
+      \field{dateera}{ce}
+      \verb{doi}
+      \verb 10.1145/3610548.3618216
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/3610548.3618216
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/3610548.3618216
+      \endverb
+      \keyw{Novel-View Synthesis,Point-based Graphics,Neural Rendering,Image-based Rendering,Reconstruction}
+    \endentry
+    \entry{stamminger2002perspective}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=519ca105c52edb2f0fe9064c9e347e63}{%
+           family={Stamminger},
+           familyi={S\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=70ecb4c4a672f7c20e4b53b57d5a437e}{%
+           family={Drettakis},
+           familyi={D\bibinitperiod},
+           given={George},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \strng{fullhash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \strng{bibnamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \strng{authorbibnamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \strng{authornamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \strng{authorfullhash}{ec1d502eeed96a5d0ac7b5f9d683c770}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 29th annual conference on Computer graphics and interactive techniques}
+      \field{title}{Perspective shadow maps}
+      \field{year}{2002}
+      \field{pages}{557\bibrangedash 562}
+      \range{pages}{6}
+    \endentry
+    \entry{weiherer2023zerohero}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=8dadde683b76fe81bf9ea9d7a86b5fb3}{%
+           family={Weiherer},
+           familyi={W\bibinitperiod},
+           given={Maximilian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=09d023a6de0a8da73d8f587a4860d728}{%
+           family={Egger},
+           familyi={E\bibinitperiod},
+           given={Bernhard},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \strng{fullhash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \strng{bibnamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \strng{authorbibnamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \strng{authornamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \strng{authorfullhash}{bf2ac31e15a5f8a5fda761b74eea91a3}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CV}
+      \field{eprinttype}{arXiv}
+      \field{title}{From Zero to Hero: Convincing with Extremely Complicated Math}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 2304.00399
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2304.00399
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2304.00399
+      \endverb
+    \endentry
+    \entry{weyrich2006analysis}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=f00f5b106911208d3ce4499cc4fbe2f3}{%
+           family={Weyrich},
+           familyi={W\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+        {{hash=92b874c31f0d8e3544cd22ce5f88b02d}{%
+           family={Matusik},
+           familyi={M\bibinitperiod},
+           given={Wojciech},
+           giveni={W\bibinitperiod}}}%
+        {{hash=b996af7e283eefe990aabf24ef52e032}{%
+           family={Pfister},
+           familyi={P\bibinitperiod},
+           given={Hanspeter},
+           giveni={H\bibinitperiod}}}%
+        {{hash=969e340a973a4bcc81d817bbf6c440c5}{%
+           family={Bickel},
+           familyi={B\bibinitperiod},
+           given={Bernd},
+           giveni={B\bibinitperiod}}}%
+        {{hash=c12def41e718afb0b716f8117c5698ac}{%
+           family={Donner},
+           familyi={D\bibinitperiod},
+           given={Craig},
+           giveni={C\bibinitperiod}}}%
+        {{hash=fdeedab29cc240df9120472ac31f186f}{%
+           family={Tu},
+           familyi={T\bibinitperiod},
+           given={Chien},
+           giveni={C\bibinitperiod}}}%
+        {{hash=18e066739109ee0d0b02e49f94362eb3}{%
+           family={McAndless},
+           familyi={M\bibinitperiod},
+           given={Janet},
+           giveni={J\bibinitperiod}}}%
+        {{hash=bbab7e47cda2965a80299246f2071de5}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Jinho},
+           giveni={J\bibinitperiod}}}%
+        {{hash=94035e785c4ee6f9cdc34c35f7b05703}{%
+           family={Ngan},
+           familyi={N\bibinitperiod},
+           given={Addy},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0dfbfae2fdfffe50978e3eaa8ed9b26c}{%
+           family={Jensen},
+           familyi={J\bibinitperiod},
+           given={Henrik\bibnamedelima Wann},
+           giveni={H\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {ACM New York, NY, USA}%
+      }
+      \strng{namehash}{bd516a68ed11263b739c6f7f8065f806}
+      \strng{fullhash}{d152644a55d481287487a9222760fe44}
+      \strng{bibnamehash}{d152644a55d481287487a9222760fe44}
+      \strng{authorbibnamehash}{d152644a55d481287487a9222760fe44}
+      \strng{authornamehash}{bd516a68ed11263b739c6f7f8065f806}
+      \strng{authorfullhash}{d152644a55d481287487a9222760fe44}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Transactions on Graphics (ToG)}
+      \field{number}{3}
+      \field{title}{Analysis of human faces using a measurement-based skin reflectance model}
+      \field{volume}{25}
+      \field{year}{2006}
+      \field{pages}{1013\bibrangedash 1024}
+      \range{pages}{12}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

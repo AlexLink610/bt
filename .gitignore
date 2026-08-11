@@ -15,3 +15,5 @@ __pycache__/
 vggt_weights/
 /source/.idea/
 /renders/
+venv/
+pres_int/pres2.pptx

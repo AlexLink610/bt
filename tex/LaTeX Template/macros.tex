@@ -1,0 +1,72 @@
+% ===============================================
+% ============ Convenience Macros ===============
+% ===============================================
+
+\ifdefstring{\academicSupervision}{guenther}{
+% vectors: lower case bold letters
+\newcommand{\vect}[1]{{\textbf{#1}}}
+}{
+% vectors: lower case bold-italics letters
+\newcommand{\vect}[1]{\ensuremath{\boldsymbol{#1}}}
+}
+\newcommand{\va}{\vect{a}}
+\newcommand{\vb}{\vect{b}}
+\newcommand{\vc}{\vect{c}}
+\newcommand{\vd}{\vect{d}}
+\newcommand{\ve}{\vect{e}}
+\newcommand{\vf}{\vect{f}}
+\newcommand{\vg}{\vect{g}}
+\newcommand{\vh}{\vect{h}}
+\newcommand{\vi}{\vect{i}}
+\newcommand{\vj}{\vect{j}}
+\newcommand{\vk}{\vect{k}}
+\newcommand{\vl}{\vect{l}}
+\newcommand{\vm}{\vect{m}}
+\newcommand{\vn}{\vect{n}}
+\newcommand{\vo}{\vect{o}}
+\newcommand{\vp}{\vect{p}}
+\newcommand{\vq}{\vect{q}}
+\newcommand{\vr}{\vect{r}}
+\newcommand{\vs}{\vect{s}}
+\newcommand{\vt}{\vect{t}}
+\newcommand{\vu}{\vect{u}}
+\ifdefstring{\academicSupervision}{guenther}{
+\renewcommand{\vv}{\vect{v}}
+}
+{
+\newcommand{\vev}{\vect{v}}
+}
+\newcommand{\vw}{\vect{w}}
+\newcommand{\vx}{\vect{x}}
+\newcommand{\vy}{\vect{y}}
+\newcommand{\vz}{\vect{z}}
+% matrices: upper case bold-italics letters
+\newcommand{\mA}{\vect{A}}
+\newcommand{\mB}{\vect{B}}
+\newcommand{\mC}{\vect{C}}
+\newcommand{\mD}{\vect{D}}
+\newcommand{\mE}{\vect{E}}
+\newcommand{\mF}{\vect{F}}
+\newcommand{\mG}{\vect{G}}
+\newcommand{\mH}{\vect{H}}
+\newcommand{\mI}{\vect{I}}
+\newcommand{\mJ}{\vect{J}}
+\newcommand{\mK}{\vect{K}}
+\newcommand{\mL}{\vect{L}}
+\newcommand{\mM}{\vect{M}}
+\newcommand{\mN}{\vect{N}}
+\newcommand{\mO}{\vect{O}}
+\newcommand{\mP}{\vect{P}}
+\newcommand{\mQ}{\vect{Q}}
+\newcommand{\mR}{\vect{R}}
+\newcommand{\mS}{\vect{S}}
+\newcommand{\mT}{\vect{T}}
+\newcommand{\mU}{\vect{U}}
+\newcommand{\mV}{\vect{V}}
+\newcommand{\mW}{\vect{W}}
+\newcommand{\mX}{\vect{X}}
+\newcommand{\mY}{\vect{Y}}
+\newcommand{\mZ}{\vect{Z}}
+% common operators
+\newcommand{\diff}{{\mathrm{diff}}}
+\newcommand{\transpose}{\ensuremath{^\top}}

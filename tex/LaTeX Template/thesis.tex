@@ -1,0 +1,309 @@
+% ===============================================
+% ============== Document setup =================
+% ===============================================
+
+% Specify your preferred document language, your type of
+% thesis, and the professorship under which your thesis 
+% takes place. To that end, use the following class options
+% of our "vcethesis" document class:
+
+% Language Options
+%   english
+%   german
+%
+% Thesis Type
+%   bsc
+%   msc
+%
+% Professorship / Chair
+%
+%   egger
+%   guenther
+%   stamminger
+%   weyrich
+%
+% Example usages:
+%
+%   \documentclass[english, egger, bsc]{vcethesis}
+%   \documentclass[german, stamminger, msc]{vcethesis}
+%   \documentclass[english, weyrich, msc]{vcethesis}
+%     ...
+%
+% Beyond that, unless you are directly supervised by 
+% the professor, you will have to enter your direct
+% supervisor. See below for further instructions.
+%
+% Now edit the following line as needed:
+\documentclass[english, egger, bsc]{vcethesis}
+
+% ===============================================
+% ================= Packages ====================
+% ===============================================
+% Feel free to customize used packages. 
+% See vcethesis.cls in the packages section, to see 
+% the full list of included packages
+
+\usepackage[textsize=small,textwidth=0.85\ML]{todonotes}
+
+% ===============================================
+% ================== Macros =====================
+% ===============================================
+
+% here are some macro definitions that you may find useful:
+\input macros
+
+% ===============================================
+% ============== Configurations =================
+% ===============================================
+% Title of your thesis
+\title{<Thesis Title>}        
+
+% Author name
+\author{<Author>}
+
+% Birth day
+\birthday{<birth day>}
+
+% Birth place
+\birthplace{<birth place>}
+
+% If your supervisor is not a professor, uncomment the following line to list the supervisor.
+%\supervisor{<Supervisor>}
+% for multiple supervisors, use \supervisors{<Supervisor1> and <Supervisor2>}
+% for a german thesis, use \supervisorM{<Supervisor>}, \supervisorF{<Supervisor>} and \supervisorD{<Supervisor>} for m/f/d supervisor.
+
+% Begin of thesis
+\bdate{<Begin of thesis>}
+
+% End of thesis
+\edate{<End of thesis>}
+
+% Additional logos: if your work is jointly supervised across
+% chairs/professorships, uncomment the following line and add
+% additional logos as needed:
+%
+%\additionallogos{\logoegger\logoweyrich\logostamminger}
+%\additionallogos{\logoweyrich\logostamminger}
+
+% Declaration of usage of AI tools:
+% Usage of AI tools has to be explicitly declared in the thesis in the declaration section.
+% See https://www.studon.fau.de/studon/go/copa/6188636 for more details.
+% Please take the following formulation and adapt it to reflect your usage:
+%
+\aideclaration{During the preparation of this work, AI technologies were used to assist in the writing process. Specifically, <AI Tool 1 (Company, City, State, Country)> was used in order to check for grammar and style consistency, and <AI Tool 2 (Company, City, State, Country)> was used in order to assist with rephrasing and improving readability. After using these tools, the manuscript was carefully reviewed and the content was edited as needed. No tools or services were used for content generation. The content of this thesis was entirely created by myself, and I ensured that all material presented reflects my original work and research. I take full responsibility for the content of the thesis.}
+%
+% If you are writing your theses in german, use the following as a template.
+%
+% \aideclaration{Während der Vorbereitung dieser Arbeit wurden KI-Technologien eingesetzt, um den Schreibprozess zu unterstützen. Insbesondere wurde <AI Tool 1 (Company, City, State, Country)> verwendet, um die Konsistenz von Grammatik und Stil zu überprüfen, und <AI Tool 2 (Company, City, State, Country)> wurde eingesetzt, um bei der Umformulierung und Verbesserung der Lesbarkeit zu helfen. Nach dem Einsatz dieser Tools wurde das Manuskript sorgfältig überprüft und der Inhalt nach Bedarf überarbeitet. Für die Erstellung des Inhalts wurden keine Tools oder Dienste verwendet. Der Inhalt dieser Arbeit wurde vollständig von mir selbst erstellt, und ich habe sichergestellt, dass das gesamte dargestellte Material meine eigene Arbeit und Forschung widerspiegelt. Ich übernehme die volle Verantwortung für den Inhalt der Arbeit.}
+
+% ===============================================
+% ================= Document ====================
+% ===============================================
+\begin{document}
+
+% -----------------------------------------
+% ----------- Front Matter ----------------
+% -----------------------------------------
+\prepages
+\maketitle
+\cleardoublepage
+% -----------------------------------------
+% ------------- Abstract ------------------
+% -----------------------------------------
+% German: Abstrakt
+\chapter*{Abstract}
+A brief and concise summary of the thesis containing the problem statement and how it was solved in about five sentences. After having read the abstract, a reader must know what the thesis is about.
+
+% -----------------------------------------
+% ----------- TOC -------------
+% -----------------------------------------
+\tableofcontents
+\cleardoublepage
+% -----------------------------------------
+% ----------- Main Document ---------------
+% -----------------------------------------
+\mainbody
+
+% German: Einleitung
+\chapter{Introduction}
+The introduction needs to answer the following questions:
+\begin{itemize}
+    \item Which area of visual computing are we in? (scientific visualization, appearance modeling, Monte Carlo rendering, etc.)
+    \item Which problem are we going to solve?
+    \item Why is this a challenging problem? What makes it difficult?
+    \item Who will be the user of this method? Who benefits from it?
+    \item How are you going to solve the problem?
+    \item How will you evaluate the method?
+    \item What are your most important findings?
+\end{itemize}
+
+% German: Verwandte Arbeiten
+\chapter{Related Work}
+
+\section{Preparation of the Bibliography}
+To add references, first add the corresponding BibTeX entries in the file \texttt{bibliography.bib}.
+
+\paragraph{Journal papers} use the \texttt{@article} entry, which needs at least:
+\begin{itemize}
+\item \textbf{title}: Title of the paper
+\item \textbf{author}: Separate authors with "and" and use comma to separate last from first names
+\item \textbf{journal}: Name of the journal.
+\item \textbf{volume}: Volume number. Each year a new volume is created.
+\item \textbf{number}: Issue number within a year. The journal might have multiple issues in a year.
+\item \textbf{pages}: Page range.
+\item \textbf{year}: Year of appearance.
+\end{itemize}
+
+\paragraph{Conference papers} use the \texttt{@inproceedings} entry, which needs at least:
+\begin{itemize}
+\item \textbf{title}: Title of the paper.
+\item \textbf{author}: Separate authors with "and" and use comma to separate last from first names
+\item \textbf{booktitle}: Name of the conference.
+\item \textbf{pages}: Page range.
+\item \textbf{year}: Year of appearance.
+\end{itemize}
+
+\section{Citing a Paper}
+To cite a paper in the LaTeX document, use the \texttt{cite} command.
+%%
+You can use indirect quotations at the end of a sentence~\cite{weyrich2006analysis}.
+
+Or you directly reference an author, such as: Weyrich et al.~\cite{weyrich2006analysis} described a method.
+%%
+If a paper has more than two authors, it is common to use ``et al.'', which means ``and colleagues''.
+
+There are also several commands that can help when citing a paper, e.g., when you want to cite in a given paper in a text: \textcite{weyrich2006analysis}.
+\begin{description}
+    \item [\texttt{cite}] Cite only square brackets: \cite{weyrich2006analysis}
+    \item [\texttt{cite}] Cite  multiple sources: \cite{guenther2012aging, stamminger2002perspective}
+    \item [\texttt{textcite}] Cite textual: \textcite{egger20203d}
+    \item [\texttt{textcite}] Cite  multiple sources: \textcite{weyrich2006analysis, harrerfranke2023inovis}
+    \item [\texttt{citeyear}] Cite the year: \citeyear{weiherer2023zerohero}.
+    
+\end{description}
+
+
+% German: Methode
+\chapter{Method}
+
+\section{Tense}
+Mind your use of present and past tense.
+%%
+Reports are typically written in present tense, except for the related work and conclusion section, which are usually in past tense.
+%%
+If you describe what past authors did, use past tense.
+%%
+If you describe what an algorithm does, which still works the same way today, use present tense.
+
+\section{I, We, Passive voice}
+It is very uncommon to write ``I''.
+%%
+Instead, either avoid using personal pronouns by switching to a passive voice, or use ``we'' instead.
+%%
+When reading the word ``we'', you can think of this as ``the reader and me''.
+
+\section{Equations}
+For equations, the \texttt{align} command is recommended, since it allows you to align equations at a specific location, such as at the $=$ sign.
+\begin{align}
+    y &= f(x)                           \label{eq:f}            \\
+    \vf &= m \cdot \va\transpose    \label{eq:Newton2nd}
+\end{align}
+Equations are referenced using \texttt{eqref}, for example \eqref{eq:f} and \eqref{eq:Newton2nd}.
+See \texttt{macros.tex} for a range of convenient macros, e.g., vector $\vx$ and matrix $\mM$ symbols 
+\section{Figures}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.7\linewidth]{example-image}
+    \caption[Caption of the Figure as listed in \texttt{listoffigures}]{Caption of the figure. Always cite the source of the image in the caption, unless you created the image yourself.}
+    \label{fig:my_label}
+\end{figure}
+Figure placement is best done with the default \texttt{figure} environment.
+To reference a figure use \texttt{figref}, for example \figref{fig:my_label}.
+If possible, always create figures as vector graphics. 
+For example an overview / pipeline graphic of your method should always be a vector graphic.
+Vector graphics allow zooming into figures without a loss in quality of the figure.
+Vector graphics can be exported in PDF format from common editing programs, which allows including them in Latex with \texttt{includegraphics}.
+Raster images should only be used in your thesis when an image is shown, that is naturally rendered at a given resolution, e.g., a result image of a rendering algorithm.
+
+\section{Tables}
+
+Table placement is best done with the default \texttt{table} environment.
+\begin{table}[t]
+    \centering
+    \begin{tabular}{ l | r r r r}
+    \toprule
+      \bfseries  & \bfseries Metric 1\(\uparrow\) & \bfseries Metric 2\(\uparrow\)& \bfseries Metric 3\(\downarrow\) & \bfseries Metric 4\(\downarrow\) \\ 
+    \midrule
+     Method 1 & \(23.1388\)  & \(0.8611\) & \(0.2479\) & \(0.1846\) \\  
+     Method 2 & \cellcolor{lightgray}\(28.3813\)  & \cellcolor{lightgray}\(0.9353\) & \(0.1831\) & \(0.1047\) \\  
+     Ours & \(26.2468\)  & \(0.9257\) & \cellcolor{lightgray}\(0.1509\) & \cellcolor{lightgray}\(0.0915\)\\
+
+     \bottomrule
+    \end{tabular}    
+    \caption[Caption of the Table as listed in \texttt{listoftables}]{Caption of the Table}
+    \label{tbl:my_label}
+\end{table}
+%%
+To reference a table use \texttt{tblref}, for example \tblref{tbl:my_label}.
+
+% German: Implementierung
+\chapter{Implementation}
+
+While the previous section aims to describe your method in a platform independent way, this  section presents all the details to reproduce your work.
+
+\section{Listings}
+
+Not all theses require the inclusion of source code. 
+If it is necessary, Code placement is best done with the \texttt{lstlisting} environment.
+\begin{lstlisting}[language=Python, caption=Caption of the Python Listing, label={lst:my_label1}]
+# Comment
+def function(parameter):
+    print("This is an example Python listing")
+    return True
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=Caption of the C++ Listing, label={lst:my_label2}]
+// Comment
+bool function(int parameter){
+    std::cout << "This is an example C++ listing" << std::endl;
+    return true;
+}
+\end{lstlisting}
+%%
+To reference a listing use \texttt{lstref}, for example \lstref{lst:my_label1}.
+
+% German: Ergebnisse
+\chapter{Results}
+Describe your qualitative and quantitative evaluations and present your results.
+Discuss the limitations of your work.
+
+% German: Zusammenfassung
+\chapter{Conclusions}
+Give a brief summary of your work and your contributions.
+Afterwards, briefly outline potential opportunities for future work.
+
+\section{Tips}
+As simple package to keep track of unfinished areas of the thesis is the \texttt{todonotes} package. \todo{This is a simple TODO note} \todo[inline]{Inline TODO}
+\missingfigure{Missing figure}
+Create a list of remaining TODOs with \texttt{listoftodos}. Don't forget to remove the \texttt{listoftodos} before submitting your thesis.
+\listoftodos
+
+% If an Appendix is needed, uncomment the following lines and add sections, where necessary.
+% \begin{appendix}
+% \chapter{Title of first Appendix (A)} % one chapter is always necessary in an an appendix, for formatting reasons.
+% \chapter{Title of second Appendix (B)} % a second chapter adds another appendix, "numbered" B.
+% \end{appendix}
+
+% -----------------------------------------
+% ------------ Back Matter ----------------
+% -----------------------------------------
+% comment out what you don't need
+\listoffigures
+\listoftables
+\lstlistoflistings
+
+% bibliography and declaration are required
+\printbibliography
+\declaration
+
+\end{document}
