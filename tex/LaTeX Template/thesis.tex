@@ -56,16 +56,16 @@
 % ============== Configurations =================
 % ===============================================
 % Title of your thesis
-\title{<Thesis Title>}        
+\title{Counting Fruits with State-of-the-Art Multi-View-Stereo Approaches}        
 
 % Author name
-\author{<Author>}
+\author{Alexander Link}
 
 % Birth day
-\birthday{<birth day>}
+\birthday{29.08.2004}
 
 % Birth place
-\birthplace{<birth place>}
+\birthplace{Bamberg}
 
 % If your supervisor is not a professor, uncomment the following line to list the supervisor.
 %\supervisor{<Supervisor>}
@@ -73,10 +73,10 @@
 % for a german thesis, use \supervisorM{<Supervisor>}, \supervisorF{<Supervisor>} and \supervisorD{<Supervisor>} for m/f/d supervisor.
 
 % Begin of thesis
-\bdate{<Begin of thesis>}
+\bdate{01.05.2026}
 
 % End of thesis
-\edate{<End of thesis>}
+\edate{01.10.2026}
 
 % Additional logos: if your work is jointly supervised across
 % chairs/professorships, uncomment the following line and add
@@ -136,6 +136,25 @@ The introduction needs to answer the following questions:
     \item How will you evaluate the method?
     \item What are your most important findings?
 \end{itemize}
+The automatic counting of fruit from images is a key task in precision agriculture, where accurate
+yield estimates support harvest planning and resource allocation. 
+\todo{citation}
+Reconstructing a fruit tree scene in 3D from a set of RGB images and 
+counting the fruit it contains is appealing because it requires only inexpensive and widely available camera hardware, rather than specialized depth sensors.
+\\Recent Work such as FruitNeRF \cite{meyer2024fruitnerf} show that this is possible by training a Neural Radiance Field \todo{Do I have to cite this?}
+per scene and counting the fruits in the resulting volumetric representation. This approach is effective but requires a time-consuming scene-specific optimization.
+In this work, we instead investigate whether a feed-forward multi-view stereo model, VGGT \cite{wang2025vggt}, can replace scene-by-scene training. Instead of optimizing a representation of each scene,
+VGGT predicts a 3D reconstruction in a single forward pass. This promises a significant reduction in runtime, but raises the central question of wether the resulting geometry is sufficiently accurate for reliable counting.
+\\Counting fruits in this scenario is challenging for several reasons: Fruits are often obscured by foliage and each other, the appearance of a scene varies with changing lighting, and the geometric complexity of a tree canopy 
+makes a consistent reconstruction difficult. To reduce occlusion and the risk of missing apples, a scene should ideally be captured from all sides, but the number of views is limited by hardware constraints such as available memory. 
+The cameras are therefore sparsely distributed across a full 360-degree range, and widely spaced views often capture completely different regions of the tree.
+This makes it difficult to establish correspondences between views, so that individual seen only by a few cameras are at risk of being fragmented in the reconstruction.
+\\This results in two types of opposing types of errors. Individual apples observed by only a few cameras yield unstable correspondences and are easily split into multiple detections, while dense clusters of apples seen by many 
+cameras may merge into a single detection. A single set of static parameters can therefore rarely resolve both cases optmially at the same time. 
+\\Our approach maps semantic information in the form of 2D instance masks, obtainde using SAM3 \cite{sam3}, across views via the 3D representation predicted by VGGT. The fruits are then counted by combining a clustering step with a preceeding partial 
+instance association that supports the clustering.
+\\We evaluate the approach in different ways on multiple datasets \todo{datasets, performance}
+\\Our key findings suggest that the scene complexity is the decisive factore for counting accuracy, since the quality of the VGGT reconstruction varies significantly depending on lighting, depth complexity, and whether the input is synthetic or real. \todo{key findings}
 
 % German: Verwandte Arbeiten
 \chapter{Related Work}

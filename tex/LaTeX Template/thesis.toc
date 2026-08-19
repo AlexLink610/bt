@@ -1,8 +1,8 @@
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {chapter}{\numberline {2}Related Work}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Preparation of the Bibliography}{3}{section.2.1}%
-\contentsline {paragraph}{Journal papers}{3}{section*.3}%
-\contentsline {paragraph}{Conference papers}{3}{section*.4}%
+\contentsline {paragraph}{Journal papers}{3}{section*.7}%
+\contentsline {paragraph}{Conference papers}{3}{section*.8}%
 \contentsline {section}{\numberline {2.2}Citing a Paper}{4}{section.2.2}%
 \contentsline {chapter}{\numberline {3}Method}{5}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Tense}{5}{section.3.1}%

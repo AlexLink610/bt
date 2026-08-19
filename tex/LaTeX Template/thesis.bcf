@@ -2361,20 +2361,23 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">bibliography.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">weyrich2006analysis</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">weyrich2006analysis</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="1" intorder="1">meyer2024fruitnerf</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">sam3</bcf:citekey>
     <bcf:citekey order="4" intorder="1">weyrich2006analysis</bcf:citekey>
     <bcf:citekey order="5" intorder="1">weyrich2006analysis</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">guenther2012aging</bcf:citekey>
-    <bcf:citekey order="6" intorder="2">stamminger2002perspective</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">egger20203d</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">egger20203d</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">weyrich2006analysis</bcf:citekey>
-    <bcf:citekey order="9" intorder="2">harrerfranke2023inovis</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">weyrich2006analysis</bcf:citekey>
-    <bcf:citekey order="10" intorder="2">harrerfranke2023inovis</bcf:citekey>
-    <bcf:citekey order="11" intorder="1">weiherer2023zerohero</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">guenther2012aging</bcf:citekey>
+    <bcf:citekey order="9" intorder="2">stamminger2002perspective</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">egger20203d</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">egger20203d</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">harrerfranke2023inovis</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">weyrich2006analysis</bcf:citekey>
+    <bcf:citekey order="13" intorder="2">harrerfranke2023inovis</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">weiherer2023zerohero</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
