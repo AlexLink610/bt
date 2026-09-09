@@ -1,19 +1,25 @@
 [0] Config.pm:307> INFO - This is Biber 2.19
 [0] Config.pm:310> INFO - Logfile is 'thesis.blg'
-[78] biber:340> INFO - === Wed Aug 19, 2026, 13:28:10
-[90] Biber.pm:419> INFO - Reading 'thesis.bcf'
-[129] Biber.pm:979> INFO - Found 9 citekeys in bib section 0
-[136] Biber.pm:4419> INFO - Processing section 0
-[144] Biber.pm:4610> INFO - Looking for bibtex file 'bibliography.bib' for section 0
-[145] bibtex.pm:1713> INFO - LaTeX decoding ...
-[151] bibtex.pm:1519> INFO - Found BibTeX data source 'bibliography.bib'
-[222] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[222] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[222] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
-[222] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[230] bbl.pm:660> INFO - Writing 'thesis.bbl' with encoding 'UTF-8'
-[233] bbl.pm:763> INFO - Output to thesis.bbl
-[233] Biber.pm:131> WARN - I didn't find a database entry for 'meyer2024fruitnerf' (section 0)
-[233] Biber.pm:131> WARN - I didn't find a database entry for 'wang2025vggt' (section 0)
-[233] Biber.pm:131> WARN - I didn't find a database entry for 'sam3' (section 0)
-[233] Biber.pm:133> INFO - WARNINGS: 3
+[31] biber:340> INFO - === Wed Sep  9, 2026, 23:26:21
+[38] Biber.pm:419> INFO - Reading 'thesis.bcf'
+[63] Biber.pm:979> INFO - Found 19 citekeys in bib section 0
+[68] Biber.pm:4419> INFO - Processing section 0
+[73] Biber.pm:4610> INFO - Looking for bibtex file 'bibliography.bib' for section 0
+[73] bibtex.pm:1713> INFO - LaTeX decoding ...
+[79] bibtex.pm:1519> INFO - Found BibTeX data source 'bibliography.bib'
+[162] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[162] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[162] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[162] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[170] bbl.pm:660> INFO - Writing 'thesis.bbl' with encoding 'UTF-8'
+[174] bbl.pm:763> INFO - Output to thesis.bbl
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'haeni2020' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'miranda2023' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'ballenaruiz2025' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'rameshchandra2025' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'liu2018' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'liu2019' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'genemola2020' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'hong2025' (section 0)
+[174] Biber.pm:131> WARN - I didn't find a database entry for 'li2025' (section 0)
+[174] Biber.pm:133> INFO - WARNINGS: 9

@@ -112,8 +112,12 @@
 % -----------------------------------------
 % German: Abstrakt
 \chapter*{Abstract}
-A brief and concise summary of the thesis containing the problem statement and how it was solved in about five sentences. After having read the abstract, a reader must know what the thesis is about.
-
+%A brief and concise summary of the thesis containing the problem statement and how it was solved in about five sentences. After having read the abstract, a reader must know what the thesis is about.
+Automated fruit counting from RGB images supports yield estimation in precision agriculture. 
+Existing approaches such as FruitneRF achieve this through scene-specific training of a neural radiance field, which requires time-consuming optimization per scene.
+In this work, we investigate whether the feed-forward multi-view stereo model VGGT can replace this training by predicting a 3D reconstruciton in a single forward pass, thereby significantly reducing runtime.
+To this end, we assign 2D instance masks to the views based on the 3D representation predicted by VGGT across all views and count the fruits using clustering with preceded partial instance association.
+\todo{Evaluation, Ergebnisse}
 % -----------------------------------------
 % ----------- TOC -------------
 % -----------------------------------------
@@ -126,22 +130,22 @@ A brief and concise summary of the thesis containing the problem statement and h
 
 % German: Einleitung
 \chapter{Introduction}
-The introduction needs to answer the following questions:
-\begin{itemize}
-    \item Which area of visual computing are we in? (scientific visualization, appearance modeling, Monte Carlo rendering, etc.)
-    \item Which problem are we going to solve?
-    \item Why is this a challenging problem? What makes it difficult?
-    \item Who will be the user of this method? Who benefits from it?
-    \item How are you going to solve the problem?
-    \item How will you evaluate the method?
-    \item What are your most important findings?
-\end{itemize}
+%The introduction needs to answer the following questions:
+%\begin{itemize}
+%    \item Which area of visual computing are we in? (scientific visualization, appearance modeling, Monte Carlo rendering, etc.)
+%    \item Which problem are we going to solve?
+%    \item Why is this a challenging problem? What makes it difficult?
+%    \item Who will be the user of this method? Who benefits from it?
+%    \item How are you going to solve the problem?
+%    \item How will you evaluate the method?
+%    \item What are your most important findings?
+%\end{itemize}
 The automatic counting of fruit from images is a key task in precision agriculture, where accurate
 yield estimates support harvest planning and resource allocation. 
 \todo{citation}
 Reconstructing a fruit tree scene in 3D from a set of RGB images and 
 counting the fruit it contains is appealing because it requires only inexpensive and widely available camera hardware, rather than specialized depth sensors.
-\\Recent Work such as FruitNeRF \cite{meyer2024fruitnerf} show that this is possible by training a Neural Radiance Field \todo{Do I have to cite this?}
+\\Recent Work such as FruitNeRF \cite{meyer2024fruitnerf} show that this is possible by training a Neural Radiance Field \cite{mildenhall2020nerf}
 per scene and counting the fruits in the resulting volumetric representation. This approach is effective but requires a time-consuming scene-specific optimization.
 In this work, we instead investigate whether a feed-forward multi-view stereo model, VGGT \cite{wang2025vggt}, can replace scene-by-scene training. Instead of optimizing a representation of each scene,
 VGGT predicts a 3D reconstruction in a single forward pass. This promises a significant reduction in runtime, but raises the central question of wether the resulting geometry is sufficiently accurate for reliable counting.
@@ -151,14 +155,33 @@ The cameras are therefore sparsely distributed across a full 360-degree range, a
 This makes it difficult to establish correspondences between views, so that individual seen only by a few cameras are at risk of being fragmented in the reconstruction.
 \\This results in two types of opposing types of errors. Individual apples observed by only a few cameras yield unstable correspondences and are easily split into multiple detections, while dense clusters of apples seen by many 
 cameras may merge into a single detection. A single set of static parameters can therefore rarely resolve both cases optmially at the same time. 
-\\Our approach maps semantic information in the form of 2D instance masks, obtainde using SAM3 \cite{sam3}, across views via the 3D representation predicted by VGGT. The fruits are then counted by combining a clustering step with a preceeding partial 
+\\Our approach maps semantic information in the form of 2D instance masks, obtainde using SAM3 \cite{carion2026sam3segmentconcepts}, across views via the 3D representation predicted by VGGT. The fruits are then counted by combining a clustering step with a preceeding partial 
 instance association that supports the clustering.
 \\We evaluate the approach in different ways on multiple datasets \todo{datasets, performance}
 \\Our key findings suggest that the scene complexity is the decisive factore for counting accuracy, since the quality of the VGGT reconstruction varies significantly depending on lighting, depth complexity, and whether the input is synthetic or real. \todo{key findings}
 
 % German: Verwandte Arbeiten
 \chapter{Related Work}
-
+\section{Fruit Counting and Yield Estimation}
+Approaches to fruit counting can be distinguished based on whether they operate in the image plane or in a tree-dimensional representation of the scene.
+Traditional image-based pipelines are divided into two subtasks: the detection of fruits in the image and their counting across multiple views \cite{haeni2020}
+While detection used to rely on handcrafted color and shape features, it is now dominated by deep neural networks \cite{miranda2023}.
+For example, YOLO-based detectors achieve high accuracies on single images \cite{ballenaruiz2025, rameshchandra2025}.
+However, sch methods count fruits on a per-frame basis and lack consistent instance tracking across multiple views, meaning that the same fruit can be counted multiple times.
+It is precisely this lack of cross-view tracking that is the problem addressed by the 3D-based approach pursued in this work.
+\\ This double counting is the central challenge in counting across image sequences. Liu et al. \cite{liu2018} introduced the first complete pipeline that tracks fruits across consecutive images and uses Structure-from-Motion (SfM) to correct double counting.
+In a subsequent paper, Liu et al. \cite{liu2019} combined detection with a semantic SfM reconstruction and assigned detections to one another using the Hungarian algorithm, using only a single camera.
+The association using the Hungarian algorithm is also adopted in the present work; however, there it operates on densely sampled video sequences with short rame intervals, whereas the scenario considered here is based on widely spaced 360-degree views with weak correspondences between the views.
+\\ To structurally avoid double counting, later studies shifted the counting entirely into three-dimensional space. 
+Häni et al. \cite{haeni2020} reconstructed rows of trees from both sides and merged the counts by combining the 3D models.
+Gené-Molá et al. \cite{genemola2020} combined Mask R-CNN instance segmentation with an SfM point cloud, projecting the 2D masks into 3D space, and filtered out false detections using a supprot vector machine. 
+This approach is the closest in structure to the present work, as it maps 3D isntance masks to views via a 3D representation. 
+However, it relies on an SfM reconstruction, which takes several hundred minutes per scene to complete and is therefore not suitable for a fast run, precisely the limitation that this work seeks to overcome by using a feed-forward model.
+\\FruitNeRF \cite{meyer2024fruitnerf} fits into this trend as the approach that fully integrates counting in to a neural scene representation, 
+thereby overcoming the previous separation of reconstruction and segmentation. However, since the NeRF representation used must be optimized per scene, the computational cost remains high.
+This limittaion forms the immediate starting point of this work. More recent works address this by replacing per-scene optimization with faster representations: 
+FruitGaussian \cite{hong2025} and CountingFruit \cite{li2025} use 3D Gaussian splatting to significantly speed up reconstruction, but they remain within the framework of scene-specific optimization.
+\section{3D-Reconstruction}
 \section{Preparation of the Bibliography}
 To add references, first add the corresponding BibTeX entries in the file \texttt{bibliography.bib}.
 
