@@ -2,18 +2,14 @@
 \contentsline {chapter}{\numberline {2}Related Work}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Fruit Counting and Yield Estimation}{3}{section.2.1}%
 \contentsline {section}{\numberline {2.2}3D-Reconstruction}{4}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Preparation of the Bibliography}{4}{section.2.3}%
-\contentsline {paragraph}{Journal papers}{4}{section*.7}%
-\contentsline {paragraph}{Conference papers}{4}{section*.8}%
-\contentsline {section}{\numberline {2.4}Citing a Paper}{4}{section.2.4}%
-\contentsline {chapter}{\numberline {3}Method}{7}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Tense}{7}{section.3.1}%
-\contentsline {section}{\numberline {3.2}I, We, Passive voice}{7}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Equations}{7}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Figures}{7}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Tables}{8}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Implementation}{9}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Listings}{9}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Results}{11}{chapter.5}%
-\contentsline {chapter}{\numberline {6}Conclusions}{13}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Tips}{13}{section.6.1}%
+\contentsline {chapter}{\numberline {3}Method}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Tense}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}I, We, Passive voice}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Equations}{5}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Figures}{5}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Tables}{6}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Implementation}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Listings}{7}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Results}{9}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Conclusions}{11}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Tips}{11}{section.6.1}%

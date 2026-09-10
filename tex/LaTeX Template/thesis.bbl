@@ -19,6 +19,46 @@
 
 \refsection{0}
   \datalist[entry]{nty/global//global/global}
+    \entry{ballenaruiz2025}{article}{}
+      \name{author}{3}{}{%
+        {{hash=53b766a0d3ed2566e3ab87c53c601748}{%
+           family={Ballena-Ruiz},
+           familyi={B\bibinithyphendelim R\bibinitperiod},
+           given={Juan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=f3eb9c733bf314986d2e0818fe81bad4}{%
+           family={Arcila-Diaz},
+           familyi={A\bibinithyphendelim D\bibinitperiod},
+           given={Juan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=988087ce6bd834de82359b9e18adac27}{%
+           family={Tuesta-Monteza},
+           familyi={T\bibinithyphendelim M\bibinitperiod},
+           given={Victor},
+           giveni={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{fd0d59d871009b2d88a1499472124447}
+      \strng{fullhash}{fd0d59d871009b2d88a1499472124447}
+      \strng{bibnamehash}{fd0d59d871009b2d88a1499472124447}
+      \strng{authorbibnamehash}{fd0d59d871009b2d88a1499472124447}
+      \strng{authornamehash}{fd0d59d871009b2d88a1499472124447}
+      \strng{authorfullhash}{fd0d59d871009b2d88a1499472124447}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2624-7402}
+      \field{journaltitle}{AgriEngineering}
+      \field{number}{5}
+      \field{title}{Automated Detection and Counting of Gossypium barbadense Fruits in Peruvian Crops Using Convolutional Neural Networks}
+      \field{volume}{7}
+      \field{year}{2025}
+      \field{pages}{152}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/agriengineering7050152
+      \endverb
+    \endentry
     \entry{carion2026sam3segmentconcepts}{misc}{}
       \name{author}{38}{}{%
         {{hash=0cb223da593b5653feac6f6eabcbe82d}{%
@@ -236,218 +276,418 @@
       \verb https://arxiv.org/abs/2511.16719
       \endverb
     \endentry
-    \entry{egger20203d}{article}{}
-      \true{moreauthor}
-      \true{morelabelname}
-      \name{author}{10}{}{%
-        {{hash=09d023a6de0a8da73d8f587a4860d728}{%
-           family={Egger},
-           familyi={E\bibinitperiod},
-           given={Bernhard},
-           giveni={B\bibinitperiod}}}%
-        {{hash=4156382d4f1dd5eab1ee56eadf676d7b}{%
-           family={Smith},
+    \entry{rameshchandra2025}{inproceedings}{}
+      \name{author}{7}{}{%
+        {{hash=76cf00df0ce0aa648520d7d2138073ad}{%
+           family={Chandra},
+           familyi={C\bibinitperiod},
+           given={G.\bibnamedelimi Ramesh},
+           giveni={G\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=ee345638014bd9caa55f82e14b6e1c44}{%
+           family={Murthy},
+           familyi={M\bibinitperiod},
+           given={K.\bibnamedelimi Sri\bibnamedelima Rama},
+           giveni={K\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=201c4dc6907817153696194675b07266}{%
+           family={Archana},
+           familyi={A\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=56c7892375d24af394c6f1ea0286f017}{%
+           family={Snehitha},
            familyi={S\bibinitperiod},
-           given={William\bibnamedelima AP},
-           giveni={W\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
-        {{hash=9222d9cbcc4e1dafc4ba63738fd6678a}{%
-           family={Tewari},
-           familyi={T\bibinitperiod},
-           given={Ayush},
-           giveni={A\bibinitperiod}}}%
-        {{hash=61b8e2de82c00532400a1613ce62f441}{%
-           family={Wuhrer},
-           familyi={W\bibinitperiod},
-           given={Stefanie},
-           giveni={S\bibinitperiod}}}%
-        {{hash=47b518958ff9e0bb9c7a55f2013d5eeb}{%
-           family={Zollhoefer},
-           familyi={Z\bibinitperiod},
-           given={Michael},
+           given={B.},
+           giveni={B\bibinitperiod}}}%
+        {{hash=98833af72488a22e710590e892c9c14a}{%
+           family={Nishanth},
+           familyi={N\bibinitperiod},
+           given={G.},
+           giveni={G\bibinitperiod}}}%
+        {{hash=6784dd36ae0280ec559f7915b73974f9}{%
+           family={Navya},
+           familyi={N\bibinitperiod},
+           given={M.},
            giveni={M\bibinitperiod}}}%
-        {{hash=f7c2e66ebcd3200d1a160b3fbe332e15}{%
-           family={Beeler},
-           familyi={B\bibinitperiod},
-           given={Thabo},
-           giveni={T\bibinitperiod}}}%
-        {{hash=0a6890a43e6042e7c0f290c5092fa52e}{%
-           family={Bernard},
-           familyi={B\bibinitperiod},
-           given={Florian},
-           giveni={F\bibinitperiod}}}%
-        {{hash=c66ff93381cb614348e2b8fa98c0628f}{%
-           family={Bolkart},
-           familyi={B\bibinitperiod},
-           given={Timo},
-           giveni={T\bibinitperiod}}}%
-        {{hash=0f1cb4253a1bef9ec3e16b06144b1ab0}{%
-           family={Kortylewski},
-           familyi={K\bibinitperiod},
-           given={Adam},
-           giveni={A\bibinitperiod}}}%
-        {{hash=d6613f8b212691dd7a32eb344a25ccea}{%
-           family={Romdhani},
-           familyi={R\bibinitperiod},
-           given={Sami},
-           giveni={S\bibinitperiod}}}%
+        {{hash=59cb434c8d92b5374a345a197cdb030a}{%
+           family={Sai\bibnamedelima Charan},
+           familyi={S\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod}}}%
       }
-      \list{publisher}{1}{%
-        {ACM New York, NY, USA}%
-      }
-      \strng{namehash}{5963593b1202c57b573101940e34b7c8}
-      \strng{fullhash}{aa7ebd58fddc91be12723b780bdb1636}
-      \strng{bibnamehash}{aa7ebd58fddc91be12723b780bdb1636}
-      \strng{authorbibnamehash}{aa7ebd58fddc91be12723b780bdb1636}
-      \strng{authornamehash}{5963593b1202c57b573101940e34b7c8}
-      \strng{authorfullhash}{aa7ebd58fddc91be12723b780bdb1636}
-      \field{sortinit}{E}
-      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
+      \strng{namehash}{99924e2ccab8b9ec7c4f3649d2ca3929}
+      \strng{fullhash}{8445ece8201f1de3eebd2bb9063ac4b5}
+      \strng{bibnamehash}{8445ece8201f1de3eebd2bb9063ac4b5}
+      \strng{authorbibnamehash}{8445ece8201f1de3eebd2bb9063ac4b5}
+      \strng{authornamehash}{99924e2ccab8b9ec7c4f3649d2ca3929}
+      \strng{authorfullhash}{8445ece8201f1de3eebd2bb9063ac4b5}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{ACM Transactions on Graphics (ToG)}
-      \field{number}{5}
-      \field{title}{3d morphable face models—past, present, and future}
-      \field{volume}{39}
-      \field{year}{2020}
-      \field{pages}{1\bibrangedash 38}
-      \range{pages}{38}
+      \field{booktitle}{2025 Eighth International Conference on Image Information Processing (ICIIP)}
+      \field{title}{Fruit Detection and Counting Using Deep Learning}
+      \field{year}{2025}
+      \field{pages}{175\bibrangedash 182}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/ICIIP68302.2025.11346118
+      \endverb
     \endentry
-    \entry{guenther2012aging}{inproceedings}{}
-      \name{author}{3}{}{%
-        {{hash=2ae49ddc941fd750d6b8100df89b8210}{%
-           family={Günther},
+    \entry{genemola2020}{article}{}
+      \name{author}{7}{}{%
+        {{hash=543ab881010f5d45d024ae0f83b493c1}{%
+           family={Gené-Mola},
+           familyi={G\bibinithyphendelim M\bibinitperiod},
+           given={Jordi},
+           giveni={J\bibinitperiod}}}%
+        {{hash=94ecc15359bd2e90c7421fcd8fe132bf}{%
+           family={Sanz-Cortiella},
+           familyi={S\bibinithyphendelim C\bibinitperiod},
+           given={Ricardo},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d885950a48e6b014bf51a10e5619b903}{%
+           family={Rosell-Polo},
+           familyi={R\bibinithyphendelim P\bibinitperiod},
+           given={Joan\bibnamedelima R.},
+           giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=2b167263819c3161d513311dd3b6dd76}{%
+           family={Morros},
+           familyi={M\bibinitperiod},
+           given={Josep-Ramon},
+           giveni={J\bibinithyphendelim R\bibinitperiod}}}%
+        {{hash=fbe6654ad226692d5fa3bfe4749c7bfd}{%
+           family={Ruiz-Hidalgo},
+           familyi={R\bibinithyphendelim H\bibinitperiod},
+           given={Javier},
+           giveni={J\bibinitperiod}}}%
+        {{hash=63bab7f913dce3391e50cf90b4e6e407}{%
+           family={Vilaplana},
+           familyi={V\bibinitperiod},
+           given={Verónica},
+           giveni={V\bibinitperiod}}}%
+        {{hash=d56632db86690a0e4ed3ffd58185c853}{%
+           family={Gregorio},
            familyi={G\bibinitperiod},
-           given={Tobias},
-           giveni={T\bibinitperiod}}}%
-        {{hash=f20691a29b2144e5cfae77275a2b3557}{%
-           family={Rohmer},
-           familyi={R\bibinitperiod},
-           given={Kai},
-           giveni={K\bibinitperiod}}}%
-        {{hash=ac958a5f522fba18b93178d370c88dff}{%
-           family={Grosch},
-           familyi={G\bibinitperiod},
-           given={Thorsten},
-           giveni={T\bibinitperiod}}}%
+           given={Eduard},
+           giveni={E\bibinitperiod}}}%
       }
-      \name{editor}{5}{}{%
-        {{hash=fe9c4886922d0dc4b62709fdad478c05}{%
-           family={Goesele},
-           familyi={G\bibinitperiod},
-           given={Michael},
-           giveni={M\bibinitperiod}}}%
-        {{hash=ac958a5f522fba18b93178d370c88dff}{%
-           family={Grosch},
-           familyi={G\bibinitperiod},
-           given={Thorsten},
-           giveni={T\bibinitperiod}}}%
-        {{hash=33b44fbf490784a6c357bad802d6f7a8}{%
-           family={Theisel},
-           familyi={T\bibinitperiod},
-           given={Holger},
-           giveni={H\bibinitperiod}}}%
-        {{hash=6028c8b43cce554582a80b01a75d71fc}{%
-           family={Toennies},
-           familyi={T\bibinitperiod},
-           given={Klaus},
-           giveni={K\bibinitperiod}}}%
-        {{hash=15fd1e7c29987cac73f37f294fb02d86}{%
-           family={Preim},
-           familyi={P\bibinitperiod},
-           given={Bernhard},
-           giveni={B\bibinitperiod}}}%
-      }
-      \list{publisher}{1}{%
-        {The Eurographics Association}%
-      }
-      \strng{namehash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{fullhash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{bibnamehash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{authorbibnamehash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{authornamehash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{authorfullhash}{a948e6cb32a6c3d334b06711664cc5b9}
-      \strng{editorbibnamehash}{c86300071f16c3764fc88c0b58c5c532}
-      \strng{editornamehash}{e81d45b708d387ccad46ec0faef89bc8}
-      \strng{editorfullhash}{c86300071f16c3764fc88c0b58c5c532}
+      \strng{namehash}{9b56b831cc0d0ec340382491b9a6699c}
+      \strng{fullhash}{7b604db0fca43e77bebd3486aa9077ff}
+      \strng{bibnamehash}{7b604db0fca43e77bebd3486aa9077ff}
+      \strng{authorbibnamehash}{7b604db0fca43e77bebd3486aa9077ff}
+      \strng{authornamehash}{9b56b831cc0d0ec340382491b9a6699c}
+      \strng{authorfullhash}{7b604db0fca43e77bebd3486aa9077ff}
       \field{sortinit}{G}
       \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{Vision, Modeling and Visualization}
-      \field{isbn}{978-3-905673-95-1}
-      \field{title}{{GPU}-accelerated Interactive Material Aging}
-      \field{year}{2012}
-      \field{pages}{63\bibrangedash 70}
-      \range{pages}{8}
+      \field{issn}{0168-1699}
+      \field{journaltitle}{Computers and Electronics in Agriculture}
+      \field{title}{Fruit detection and 3D location using instance segmentation neural networks and structure-from-motion photogrammetry}
+      \field{volume}{169}
+      \field{year}{2020}
+      \field{pages}{105165}
+      \range{pages}{1}
       \verb{doi}
-      \verb 10.2312/PE/VMV/VMV12/063-070
+      \verb 10.1016/j.compag.2019.105165
       \endverb
     \endentry
-    \entry{harrerfranke2023inovis}{inproceedings}{}
-      \name{author}{5}{}{%
-        {{hash=b5940dee8b48e005b2d411a4802aae65}{%
-           family={Harrer},
+    \entry{haeni2019}{article}{}
+      \name{author}{3}{}{%
+        {{hash=b5d876d79e3eeef0b0e97b5b7f0246ac}{%
+           family={Häni},
            familyi={H\bibinitperiod},
-           given={Mathias},
-           giveni={M\bibinitperiod}}}%
-        {{hash=027a4711618a91a654ee193f9fdbb196}{%
-           family={Franke},
-           familyi={F\bibinitperiod},
-           given={Linus},
-           giveni={L\bibinitperiod}}}%
-        {{hash=9572c06bd00372d1de7e762d8a52db93}{%
-           family={Fink},
-           familyi={F\bibinitperiod},
-           given={Laura},
-           giveni={L\bibinitperiod}}}%
-        {{hash=519ca105c52edb2f0fe9064c9e347e63}{%
-           family={Stamminger},
-           familyi={S\bibinitperiod},
-           given={Marc},
-           giveni={M\bibinitperiod}}}%
-        {{hash=f00f5b106911208d3ce4499cc4fbe2f3}{%
-           family={Weyrich},
-           familyi={W\bibinitperiod},
-           given={Tim},
-           giveni={T\bibinitperiod}}}%
-      }
-      \list{location}{1}{%
-        {Sydney, NSW, Australia}%
+           given={Nicolai},
+           giveni={N\bibinitperiod}}}%
+        {{hash=dd39dd1f125969f7453ebbf54d58d0fc}{%
+           family={Roy},
+           familyi={R\bibinitperiod},
+           given={Pravakar},
+           giveni={P\bibinitperiod}}}%
+        {{hash=87b8d080b88aecea246d4901006d26ea}{%
+           family={Isler},
+           familyi={I\bibinitperiod},
+           given={Volkan},
+           giveni={V\bibinitperiod}}}%
       }
       \list{publisher}{1}{%
-        {Association for Computing Machinery}%
+        {Wiley}%
       }
-      \strng{namehash}{5c4b2d043be2d7285140dd9a1afb886b}
-      \strng{fullhash}{87339e613e561a12b68efa3d1e0e39ad}
-      \strng{bibnamehash}{87339e613e561a12b68efa3d1e0e39ad}
-      \strng{authorbibnamehash}{87339e613e561a12b68efa3d1e0e39ad}
-      \strng{authornamehash}{5c4b2d043be2d7285140dd9a1afb886b}
-      \strng{authorfullhash}{87339e613e561a12b68efa3d1e0e39ad}
+      \strng{namehash}{3bcc5b19693d3033af63e49f24e1d132}
+      \strng{fullhash}{3bcc5b19693d3033af63e49f24e1d132}
+      \strng{bibnamehash}{3bcc5b19693d3033af63e49f24e1d132}
+      \strng{authorbibnamehash}{3bcc5b19693d3033af63e49f24e1d132}
+      \strng{authornamehash}{3bcc5b19693d3033af63e49f24e1d132}
+      \strng{authorfullhash}{3bcc5b19693d3033af63e49f24e1d132}
       \field{sortinit}{H}
       \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{abstract}{Novel-view synthesis is an ill-posed problem in that it requires inference of previously unseen information. Recently, reviving the traditional field of image-based rendering, neural methods proved particularly suitable for this interpolation/extrapolation task; however, they often require a-priori scene-completeness or costly preprocessing steps and generally suffer from long (scene-specific) training times. Our work draws from recent progress in neural spatio-temporal supersampling to enhance a state-of-the-art neural renderer's ability to infer novel-view information at inference time. We adapt a supersampling architecture [Xiao et al. 2020], which resamples previously rendered frames, to instead recombine nearby camera images in a multi-view dataset. These input frames are warped into a joint target frame, guided by the most recent (point-based) scene representation, followed by neural interpolation. The resulting architecture gains sufficient robustness to significantly improve transferability to previously unseen datasets. In particular, this enables novel applications for neural rendering where dynamically streamed content is directly incorporated in a (neural) image-based reconstruction of a scene. As we will show, our method reaches state-of-the-art performance when compared to previous works that rely on static and sufficiently densely sampled scenes; in addition, we demonstrate our system's particular suitability for dynamically streamed content, where our approach is able to produce high-fidelity novel-view synthesis even with significantly fewer available frames than competing neural methods.}
-      \field{booktitle}{SIGGRAPH Asia Conference Papers}
-      \field{day}{12}
-      \field{endday}{15}
-      \field{endmonth}{12}
-      \field{endyear}{2023}
-      \field{month}{12}
-      \field{title}{Inovis: Instant Novel-View Synthesis}
-      \field{year}{2023}
-      \field{enddateera}{ce}
-      \field{dateera}{ce}
+      \field{issn}{1556-4967}
+      \field{journaltitle}{Journal of Field Robotics}
+      \field{month}{8}
+      \field{number}{2}
+      \field{title}{A comparative study of fruit detection and counting methods for yield mapping in apple orchards}
+      \field{volume}{37}
+      \field{year}{2019}
+      \field{pages}{263\bibrangedash 282}
+      \range{pages}{20}
       \verb{doi}
-      \verb 10.1145/3610548.3618216
+      \verb 10.1002/rob.21902
       \endverb
       \verb{urlraw}
-      \verb https://doi.org/10.1145/3610548.3618216
+      \verb http://dx.doi.org/10.1002/rob.21902
       \endverb
       \verb{url}
-      \verb https://doi.org/10.1145/3610548.3618216
+      \verb http://dx.doi.org/10.1002/rob.21902
       \endverb
-      \keyw{Novel-View Synthesis,Point-based Graphics,Neural Rendering,Image-based Rendering,Reconstruction}
+    \endentry
+    \entry{hong2025}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=95051615f7e095c928d05b42035b9e93}{%
+           family={Hong},
+           familyi={H\bibinitperiod},
+           given={Xiangyu},
+           giveni={X\bibinitperiod}}}%
+        {{hash=a2477970d1b0e673212b8e76705253bf}{%
+           family={Qin},
+           familyi={Q\bibinitperiod},
+           given={Linlin},
+           giveni={L\bibinitperiod}}}%
+        {{hash=27e05e82c85406cbf48405dddbd35b4e}{%
+           family={Shi},
+           familyi={S\bibinitperiod},
+           given={Chun},
+           giveni={C\bibinitperiod}}}%
+        {{hash=6af5eb141ad012670b4eb92a956339a0}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={Gang},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8a6447669b1f2191ec4397a2118d2638}
+      \strng{fullhash}{6fe3abbed1e2012f5e5f7cdec1de40af}
+      \strng{bibnamehash}{6fe3abbed1e2012f5e5f7cdec1de40af}
+      \strng{authorbibnamehash}{6fe3abbed1e2012f5e5f7cdec1de40af}
+      \strng{authornamehash}{8a6447669b1f2191ec4397a2118d2638}
+      \strng{authorfullhash}{6fe3abbed1e2012f5e5f7cdec1de40af}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 44th Chinese Control Conference (CCC)}
+      \field{title}{FruitGaussian: 3D Gaussian Splatting for Automated Fruit Counting in Natural Orchard}
+      \field{year}{2025}
+      \field{pages}{8004\bibrangedash 8009}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.23919/CCC64809.2025.11179457
+      \endverb
+    \endentry
+    \entry{li2025}{misc}{}
+      \name{author}{7}{}{%
+        {{hash=15f48f2478bb575e56ef5ae5f06dd653}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Fengze},
+           giveni={F\bibinitperiod}}}%
+        {{hash=ec4f91f1b3abe6e9ffcac96ef7d1ba1e}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Yangle},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=b94f9d1b015f5ccbbd3855f5b431895c}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Jieming},
+           giveni={J\bibinitperiod}}}%
+        {{hash=94ec1f0f3f2f01f49b1f26ff31407f08}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Hai-Ning},
+           giveni={H\bibinithyphendelim N\bibinitperiod}}}%
+        {{hash=b320e7f16c1e2d8488e755bb18dfe5f5}{%
+           family={Shen},
+           familyi={S\bibinitperiod},
+           given={Yaochun},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=a33fd1c2e3781a56733a3d680ffa4114}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Huangxiang},
+           giveni={H\bibinitperiod}}}%
+        {{hash=74752de53a530c03691ac081d0fd985e}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={Zhijing},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{38e2911ab5e51b7e1d27417b841b0b7b}
+      \strng{fullhash}{4d9f05e0a9d6385a38e5596e9c96b7c3}
+      \strng{bibnamehash}{4d9f05e0a9d6385a38e5596e9c96b7c3}
+      \strng{authorbibnamehash}{4d9f05e0a9d6385a38e5596e9c96b7c3}
+      \strng{authornamehash}{38e2911ab5e51b7e1d27417b841b0b7b}
+      \strng{authorfullhash}{4d9f05e0a9d6385a38e5596e9c96b7c3}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CV}
+      \field{eprinttype}{arXiv}
+      \field{title}{CountingFruit: Language-Guided 3D Fruit Counting with Semantic Gaussian Splatting}
+      \field{year}{2025}
+      \verb{eprint}
+      \verb 2506.01109
+      \endverb
+    \endentry
+    \entry{liu2018}{misc}{}
+      \name{author}{9}{}{%
+        {{hash=0acb094e371db85d102e7a7366a7fcd5}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Xu},
+           giveni={X\bibinitperiod}}}%
+        {{hash=76c7594bdec50ff857c913c2a96486a7}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Steven\bibnamedelima W.},
+           giveni={S\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=7320caa04e48fbd726fb6b81a22c643f}{%
+           family={Aditya},
+           familyi={A\bibinitperiod},
+           given={Shreyas},
+           giveni={S\bibinitperiod}}}%
+        {{hash=a04eff5de678d16225df341737022821}{%
+           family={Sivakumar},
+           familyi={S\bibinitperiod},
+           given={Nivedha},
+           giveni={N\bibinitperiod}}}%
+        {{hash=f370f0130a5987da6c2bb0f1fd39397e}{%
+           family={Dcunha},
+           familyi={D\bibinitperiod},
+           given={Sandeep},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c3bc0361495705864bdf7d9587085895}{%
+           family={Qu},
+           familyi={Q\bibinitperiod},
+           given={Chao},
+           giveni={C\bibinitperiod}}}%
+        {{hash=6ac78034c7568d3e1230660dbf4506d3}{%
+           family={Taylor},
+           familyi={T\bibinitperiod},
+           given={Camillo\bibnamedelima J.},
+           giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=deb0b9f58b7274cc55f183224c8e2a1f}{%
+           family={Das},
+           familyi={D\bibinitperiod},
+           given={Jnaneshwar},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3c2a6a0658f1ad90e7d4a83eef9c3841}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={Vijay},
+           giveni={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{b09084e89b557c6d99bd737c469e44c3}
+      \strng{fullhash}{14756cb31869371c2b2996c2f6fa3cfb}
+      \strng{bibnamehash}{14756cb31869371c2b2996c2f6fa3cfb}
+      \strng{authorbibnamehash}{14756cb31869371c2b2996c2f6fa3cfb}
+      \strng{authornamehash}{b09084e89b557c6d99bd737c469e44c3}
+      \strng{authorfullhash}{14756cb31869371c2b2996c2f6fa3cfb}
+      \field{extraname}{1}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CV}
+      \field{eprinttype}{arXiv}
+      \field{title}{Robust Fruit Counting: Combining Deep Learning, Tracking, and Structure from Motion}
+      \field{year}{2018}
+      \verb{eprint}
+      \verb 1804.00307
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1804.00307
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1804.00307
+      \endverb
+    \endentry
+    \entry{liu2019}{article}{}
+      \name{author}{8}{}{%
+        {{hash=0acb094e371db85d102e7a7366a7fcd5}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Xu},
+           giveni={X\bibinitperiod}}}%
+        {{hash=76c7594bdec50ff857c913c2a96486a7}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Steven\bibnamedelima W.},
+           giveni={S\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=a090a661e72d1ff8490ab74f10685583}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Chenhao},
+           giveni={C\bibinitperiod}}}%
+        {{hash=35c614007a210914bbb98bc4585bc4f2}{%
+           family={Shivakumar},
+           familyi={S\bibinitperiod},
+           given={Shreyas\bibnamedelima S.},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=deb0b9f58b7274cc55f183224c8e2a1f}{%
+           family={Das},
+           familyi={D\bibinitperiod},
+           given={Jnaneshwar},
+           giveni={J\bibinitperiod}}}%
+        {{hash=6ac78034c7568d3e1230660dbf4506d3}{%
+           family={Taylor},
+           familyi={T\bibinitperiod},
+           given={Camillo\bibnamedelima J.},
+           giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=eef438e12c6d31935998b6decb8bb82b}{%
+           family={Underwood},
+           familyi={U\bibinitperiod},
+           given={James},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3c2a6a0658f1ad90e7d4a83eef9c3841}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={Vijay},
+           giveni={V\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {Institute of Electrical}%
+        {Electronics Engineers (IEEE)}%
+      }
+      \strng{namehash}{b09084e89b557c6d99bd737c469e44c3}
+      \strng{fullhash}{dd6994017f884625f2b8a45e7bd63aef}
+      \strng{bibnamehash}{dd6994017f884625f2b8a45e7bd63aef}
+      \strng{authorbibnamehash}{dd6994017f884625f2b8a45e7bd63aef}
+      \strng{authornamehash}{b09084e89b557c6d99bd737c469e44c3}
+      \strng{authorfullhash}{dd6994017f884625f2b8a45e7bd63aef}
+      \field{extraname}{2}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2377-3774}
+      \field{journaltitle}{IEEE Robotics and Automation Letters}
+      \field{number}{3}
+      \field{title}{Monocular Camera Based Fruit Counting and Mapping With Semantic Data Association}
+      \field{volume}{4}
+      \field{year}{2019}
+      \field{pages}{2296\bibrangedash 2303}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/lra.2019.2901987
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1109/LRA.2019.2901987
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1109/LRA.2019.2901987
+      \endverb
     \endentry
     \entry{meyer2024fruitnerf}{inproceedings}{}
       \name{author}{4}{}{%
@@ -561,34 +801,79 @@
       \verb https://doi.org/10.1145/3503250
       \endverb
     \endentry
-    \entry{stamminger2002perspective}{inproceedings}{}
-      \name{author}{2}{}{%
-        {{hash=519ca105c52edb2f0fe9064c9e347e63}{%
-           family={Stamminger},
-           familyi={S\bibinitperiod},
-           given={Marc},
+    \entry{miranda2023}{article}{}
+      \name{author}{10}{}{%
+        {{hash=bd37088cf8b62689077fddf9a94f9606}{%
+           family={Miranda},
+           familyi={M\bibinitperiod},
+           given={Juan\bibnamedelima C.},
+           giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=543ab881010f5d45d024ae0f83b493c1}{%
+           family={Gené-Mola},
+           familyi={G\bibinithyphendelim M\bibinitperiod},
+           given={Jordi},
+           giveni={J\bibinitperiod}}}%
+        {{hash=993e346e89d15fc05e1243315ff9a16d}{%
+           family={Zude-Sasse},
+           familyi={Z\bibinithyphendelim S\bibinitperiod},
+           given={Manuela},
            giveni={M\bibinitperiod}}}%
-        {{hash=70ecb4c4a672f7c20e4b53b57d5a437e}{%
-           family={Drettakis},
-           familyi={D\bibinitperiod},
-           given={George},
-           giveni={G\bibinitperiod}}}%
+        {{hash=defa31f97ea2fb96e659af14f1d1390d}{%
+           family={Tsoulias},
+           familyi={T\bibinitperiod},
+           given={Nikos},
+           giveni={N\bibinitperiod}}}%
+        {{hash=432e576dcc312b49eb1fe3b5ac13bc21}{%
+           family={Escolà},
+           familyi={E\bibinitperiod},
+           given={Alexandre},
+           giveni={A\bibinitperiod}}}%
+        {{hash=7fe17e66c42acf49d5d0dfca2011b4a5}{%
+           family={Arnó},
+           familyi={A\bibinitperiod},
+           given={Jaume},
+           giveni={J\bibinitperiod}}}%
+        {{hash=d885950a48e6b014bf51a10e5619b903}{%
+           family={Rosell-Polo},
+           familyi={R\bibinithyphendelim P\bibinitperiod},
+           given={Joan\bibnamedelima R.},
+           giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=94ecc15359bd2e90c7421fcd8fe132bf}{%
+           family={Sanz-Cortiella},
+           familyi={S\bibinithyphendelim C\bibinitperiod},
+           given={Ricardo},
+           giveni={R\bibinitperiod}}}%
+        {{hash=1cd37cd5fc9cf92b543a25ca334b8327}{%
+           family={Martínez-Casasnovas},
+           familyi={M\bibinithyphendelim C\bibinitperiod},
+           given={José\bibnamedelima A.},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=d56632db86690a0e4ed3ffd58185c853}{%
+           family={Gregorio},
+           familyi={G\bibinitperiod},
+           given={Eduard},
+           giveni={E\bibinitperiod}}}%
       }
-      \strng{namehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \strng{fullhash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \strng{bibnamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \strng{authorbibnamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \strng{authornamehash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \strng{authorfullhash}{ec1d502eeed96a5d0ac7b5f9d683c770}
-      \field{sortinit}{S}
-      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \strng{namehash}{f04e90b2cb9fe6c6e24e10457e3bbba2}
+      \strng{fullhash}{53b85814788b89246d2f87c7e8105258}
+      \strng{bibnamehash}{53b85814788b89246d2f87c7e8105258}
+      \strng{authorbibnamehash}{53b85814788b89246d2f87c7e8105258}
+      \strng{authornamehash}{f04e90b2cb9fe6c6e24e10457e3bbba2}
+      \strng{authorfullhash}{53b85814788b89246d2f87c7e8105258}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the 29th annual conference on Computer graphics and interactive techniques}
-      \field{title}{Perspective shadow maps}
-      \field{year}{2002}
-      \field{pages}{557\bibrangedash 562}
-      \range{pages}{6}
+      \field{issn}{0925-5214}
+      \field{journaltitle}{Postharvest Biology and Technology}
+      \field{title}{Fruit sizing using {AI}: A review of methods and challenges}
+      \field{volume}{206}
+      \field{year}{2023}
+      \field{pages}{112587}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.postharvbio.2023.112587
+      \endverb
     \endentry
     \entry{wang2025vggt}{inproceedings}{}
       \name{author}{6}{}{%
@@ -643,129 +928,7 @@
       \endverb
       \keyw{Geometry;Point cloud compression;Visualization;Three-dimensional displays;Parameter estimation;Depth measurement;Cameras;Transformers;Feedforward neural networks;Image reconstruction;3d reconstruction;multiview geometry;feedforward}
     \endentry
-    \entry{weiherer2023zerohero}{misc}{}
-      \name{author}{2}{}{%
-        {{hash=8dadde683b76fe81bf9ea9d7a86b5fb3}{%
-           family={Weiherer},
-           familyi={W\bibinitperiod},
-           given={Maximilian},
-           giveni={M\bibinitperiod}}}%
-        {{hash=09d023a6de0a8da73d8f587a4860d728}{%
-           family={Egger},
-           familyi={E\bibinitperiod},
-           given={Bernhard},
-           giveni={B\bibinitperiod}}}%
-      }
-      \strng{namehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \strng{fullhash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \strng{bibnamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \strng{authorbibnamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \strng{authornamehash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \strng{authorfullhash}{bf2ac31e15a5f8a5fda761b74eea91a3}
-      \field{sortinit}{W}
-      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{eprintclass}{cs.CV}
-      \field{eprinttype}{arXiv}
-      \field{title}{From Zero to Hero: Convincing with Extremely Complicated Math}
-      \field{year}{2023}
-      \verb{eprint}
-      \verb 2304.00399
-      \endverb
-      \verb{urlraw}
-      \verb https://arxiv.org/abs/2304.00399
-      \endverb
-      \verb{url}
-      \verb https://arxiv.org/abs/2304.00399
-      \endverb
-    \endentry
-    \entry{weyrich2006analysis}{article}{}
-      \true{moreauthor}
-      \true{morelabelname}
-      \name{author}{10}{}{%
-        {{hash=f00f5b106911208d3ce4499cc4fbe2f3}{%
-           family={Weyrich},
-           familyi={W\bibinitperiod},
-           given={Tim},
-           giveni={T\bibinitperiod}}}%
-        {{hash=92b874c31f0d8e3544cd22ce5f88b02d}{%
-           family={Matusik},
-           familyi={M\bibinitperiod},
-           given={Wojciech},
-           giveni={W\bibinitperiod}}}%
-        {{hash=b996af7e283eefe990aabf24ef52e032}{%
-           family={Pfister},
-           familyi={P\bibinitperiod},
-           given={Hanspeter},
-           giveni={H\bibinitperiod}}}%
-        {{hash=969e340a973a4bcc81d817bbf6c440c5}{%
-           family={Bickel},
-           familyi={B\bibinitperiod},
-           given={Bernd},
-           giveni={B\bibinitperiod}}}%
-        {{hash=c12def41e718afb0b716f8117c5698ac}{%
-           family={Donner},
-           familyi={D\bibinitperiod},
-           given={Craig},
-           giveni={C\bibinitperiod}}}%
-        {{hash=fdeedab29cc240df9120472ac31f186f}{%
-           family={Tu},
-           familyi={T\bibinitperiod},
-           given={Chien},
-           giveni={C\bibinitperiod}}}%
-        {{hash=18e066739109ee0d0b02e49f94362eb3}{%
-           family={McAndless},
-           familyi={M\bibinitperiod},
-           given={Janet},
-           giveni={J\bibinitperiod}}}%
-        {{hash=bbab7e47cda2965a80299246f2071de5}{%
-           family={Lee},
-           familyi={L\bibinitperiod},
-           given={Jinho},
-           giveni={J\bibinitperiod}}}%
-        {{hash=94035e785c4ee6f9cdc34c35f7b05703}{%
-           family={Ngan},
-           familyi={N\bibinitperiod},
-           given={Addy},
-           giveni={A\bibinitperiod}}}%
-        {{hash=0dfbfae2fdfffe50978e3eaa8ed9b26c}{%
-           family={Jensen},
-           familyi={J\bibinitperiod},
-           given={Henrik\bibnamedelima Wann},
-           giveni={H\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
-      }
-      \list{publisher}{1}{%
-        {ACM New York, NY, USA}%
-      }
-      \strng{namehash}{bd516a68ed11263b739c6f7f8065f806}
-      \strng{fullhash}{d152644a55d481287487a9222760fe44}
-      \strng{bibnamehash}{d152644a55d481287487a9222760fe44}
-      \strng{authorbibnamehash}{d152644a55d481287487a9222760fe44}
-      \strng{authornamehash}{bd516a68ed11263b739c6f7f8065f806}
-      \strng{authorfullhash}{d152644a55d481287487a9222760fe44}
-      \field{sortinit}{W}
-      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{ACM Transactions on Graphics (ToG)}
-      \field{number}{3}
-      \field{title}{Analysis of human faces using a measurement-based skin reflectance model}
-      \field{volume}{25}
-      \field{year}{2006}
-      \field{pages}{1013\bibrangedash 1024}
-      \range{pages}{12}
-    \endentry
   \enddatalist
-  \missing{ballenaruiz2025}
-  \missing{genemola2020}
-  \missing{haeni2020}
-  \missing{hong2025}
-  \missing{li2025}
-  \missing{liu2018}
-  \missing{liu2019}
-  \missing{miranda2023}
-  \missing{rameshchandra2025}
 \endrefsection
 \endinput
 
