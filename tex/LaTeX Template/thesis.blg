@@ -1,0 +1,20 @@
+[0] Config.pm:328> INFO - This is Biber 2.21
+[0] Config.pm:331> INFO - Logfile is 'thesis.blg'
+[68] biber-MSWIN64:342> INFO - === 
+[96] Biber.pm:421> INFO - Reading 'thesis.bcf'
+[168] Biber.pm:1002> INFO - Found 24 citekeys in bib section 0
+[176] Biber.pm:4487> INFO - Processing section 0
+[183] Biber.pm:4678> INFO - Looking for bibtex file 'bibliography.bib' for section 0
+[227] bibtex.pm:1713> INFO - LaTeX decoding ...
+[250] bibtex.pm:1519> INFO - Found BibTeX data source 'bibliography.bib'
+[418] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[418] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[418] Biber.pm:4307> INFO - Sorting list 'nty/global//global/global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[418] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
+[439] bbl.pm:676> INFO - Writing 'thesis.bbl' with encoding 'UTF-8'
+[462] bbl.pm:779> INFO - Output to thesis.bbl
+[462] Biber.pm:132> WARN - legacy month field 'July' in entry 'kerbl3Dgaussians' is not an integer - this will probably not sort properly.
+[462] Biber.pm:132> WARN - legacy month field 'June' in entry 'wang2024dust3r' is not an integer - this will probably not sort properly.
+[462] Biber.pm:132> WARN - legacy month field 'June' in entry 'Yang_2025_Fast3R' is not an integer - this will probably not sort properly.
+[462] Biber.pm:132> WARN - BibTeX subsystem: C:\Users\alex\AppData\Local\Temp\biber_tmp_xZHK\f4d088b3f9f145b5c3058da33afd57d4_27252.utf8, line 80, warning: undefined macro "July"
+[462] Biber.pm:134> INFO - WARNINGS: 4

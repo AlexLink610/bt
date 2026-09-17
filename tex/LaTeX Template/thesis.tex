@@ -142,62 +142,74 @@ Reconstructing a fruit tree scene in 3D from a set of RGB images and
 counting the fruit it contains is appealing because it requires only inexpensive and widely available camera hardware, rather than specialized depth sensors.
 
 Recent Work such as FruitNeRF \cite{meyer2024fruitnerf} show that this is possible by training a Neural Radiance Field \cite{mildenhall2020nerf}
-per scene and counting the fruits in the resulting volumetric representation. This approach is effective but requires a time-consuming scene-specific optimization.
-In this work, we instead investigate whether a feed-forward multi-view stereo model, VGGT \cite{wang2025vggt}, can replace scene-by-scene training. Instead of optimizing a representation of each scene,
-VGGT predicts a 3D reconstruction in a single forward pass. This promises a significant reduction in runtime, but raises the central question of wether the resulting geometry is sufficiently accurate for reliable counting.
+per scene and counting the fruits in the resulting volumetric representation. This approach is effective but requires a time-consuming scene-specific optimization. In this work, we instead investigate whether a feed-forward multi-view stereo model, VGGT \cite{wang2025vggt}, can replace scene-by-scene training. Instead of optimizing a representation of each scene, VGGT predicts a 3D reconstruction in a single forward pass. This promises a significant reduction in runtime, but raises the central question of wether the resulting geometry is sufficiently accurate for reliable counting.
 
-Counting fruits in this scenario is challenging for several reasons: Fruits are often obscured by foliage and each other, the appearance of a scene varies with changing lighting, and the geometric complexity of a tree canopy 
-makes a consistent reconstruction difficult. To reduce occlusion and the risk of missing apples, a scene should ideally be captured from all sides, but the number of views is limited by hardware constraints such as available memory. 
-The cameras are therefore sparsely distributed across a full 360-degree range, and widely spaced views often capture completely different regions of the tree.
-This makes it difficult to establish correspondences between views
+Counting fruits in this scenario is challenging for several reasons: Fruits are often obscured by foliage and each other, the appearance of a scene varies with changing lighting, and the geometric complexity of a tree canopy makes a consistent reconstruction difficult. To reduce occlusion and the risk of missing apples, a scene should ideally be captured from all sides, but the number of views is limited by hardware constraints such as available memory. The cameras are therefore sparsely distributed across a full 360-degree range, and widely spaced views often capture completely different regions of the tree. This makes it difficult to establish correspondences between views
 
-This results in two types of opposing types of errors. Individual apples observed by only a few cameras yield unstable correspondences and are easily split into multiple detections, while dense clusters of apples seen by many 
-cameras may merge into a single detection. A single set of static parameters can therefore rarely resolve both cases optimally at the same time. 
+This results in two types of opposing types of errors. Individual apples observed by only a few cameras yield unstable correspondences and are easily split into multiple detections, while dense clusters of apples seen by many cameras may merge into a single detection. A single set of static parameters can therefore rarely resolve both cases optimally at the same time. 
 
 Our approach maps semantic information in the form of 2D instance masks, obtained using SAM3 \cite{carion2026sam3segmentconcepts}, across views via the 3D representation predicted by VGGT. The fruits are then counted by combining a clustering step with a preceeding partial 
 instance association that supports the clustering.
 % German: Verwandte Arbeiten
 \chapter{Related Work}
 \section{Fruit Counting and Yield Estimation}
-Approaches to fruit counting can be distinguished based on whether they operate in the image plane or in a three-dimensional representation of the scene.
-Traditional image-based pipelines are divided into two subtasks: the detection of fruits in the image and their counting across multiple views \cite{haeni2019}
-While detection used to rely on handcrafted color and shape features, it is now dominated by deep neural networks \cite{miranda2023}.
-For example, YOLO-based detectors achieve high accuracies on single images \cite{ballenaruiz2025}.
-However, such methods count fruits on a per-frame basis and lack consistent instance tracking across multiple views, meaning that the same fruit can be counted multiple times.
-It is precisely this lack of cross-view tracking that is the problem addressed by the 3D-based approach pursued in this work.
+Approaches to fruit counting can be distinguished based on whether they operate in the image plane or in a three-dimensional representation of the scene. Traditional image-based pipelines are divided into two subtasks: the detection of fruits in the image and their counting across multiple views \cite{haeni2019} While detection used to rely on handcrafted color and shape features, it is now dominated by deep neural networks \cite{miranda2023}. For example, YOLO-based detectors achieve high accuracies on single images \cite{ballenaruiz2025}.
+However, such methods count fruits on a per-frame basis and lack consistent instance tracking across multiple views, meaning that the same fruit can be counted multiple times. It is precisely this lack of cross-view tracking that is the problem addressed by the 3D-based approach pursued in this work.
 
-This double counting is the central challenge in counting across image sequences. Liu et al. \cite{liu2018} introduced the first complete pipeline that tracks fruits across consecutive images and uses Structure-from-Motion (SfM) to correct double counting,
-more recent pipelines combine modern detectors such as YOLO with dedicated tracking modules for the same purpose \cite{rameshchandra2025}.
-In a subsequent paper, Liu et al. \cite{liu2019} combined detection with a semantic SfM reconstruction and assigned detections to one another using the Hungarian algorithm, using only a single camera.
-The association using the Hungarian algorithm is also adopted in the present work; however, there it operates on densely sampled video sequences with short frame intervals, whereas the scenario considered here is based on widely spaced 360-degree views with weak correspondences between the views.
+This double counting is the central challenge in counting across image sequences. Liu et al. \cite{liu2018} introduced the first complete pipeline that tracks fruits across consecutive images and uses Structure-from-Motion (SfM) to correct double counting, more recent pipelines combine modern detectors such as YOLO with dedicated tracking modules for the same purpose \cite{rameshchandra2025}.
+In a subsequent paper, Liu et al. \cite{liu2019} combined detection with a semantic SfM reconstruction and assigned detections to one another using the Hungarian algorithm, using only a single camera. The association using the Hungarian algorithm is also adopted in the present work; however, there it operates on densely sampled video sequences with short frame intervals, whereas the scenario considered here is based on widely spaced 360-degree views with weak correspondences between the views.
 
 To structurally avoid double counting, later studies shifted the counting entirely into three-dimensional space. 
 Häni et al. \cite{haeni2019} reconstructed rows of trees from both sides and merged the counts by combining the 3D models.
-Gené-Molá et al. \cite{genemola2020} combined Mask R-CNN instance segmentation with an SfM point cloud, projecting the 2D masks into 3D space, and filtered out false detections using a supprot vector machine. 
-This approach is the closest in structure to the present work, as it maps 3D instance masks to views via a 3D representation. 
-However, it relies on an SfM reconstruction, which takes several hundred minutes per scene to complete and is therefore not suitable for a fast run, precisely the limitation that this work seeks to overcome by using a feed-forward model.
+Gené-Molá et al. \cite{genemola2020} combined Mask R-CNN instance segmentation with an SfM point cloud, projecting the 2D masks into 3D space, and filtered out false detections using a supprot vector machine.  This approach is the closest in structure to the present work, as it maps 3D instance masks to views via a 3D representation. However, it relies on an SfM reconstruction, which takes several hundred minutes per scene to complete and is therefore not suitable for a fast run, precisely the limitation that this work seeks to overcome by using a feed-forward model.
 
 FruitNeRF \cite{meyer2024fruitnerf} fits into this trend as the approach that fully integrates counting in to a neural scene representation, 
-thereby overcoming the previous separation of reconstruction and segmentation. However, since the NeRF representation used must be optimized per scene, the computational cost remains high.
-This limitaion forms the immediate starting point of this work. More recent works address this by replacing per-scene optimization with faster representations: 
-FruitGaussian \cite{hong2025} and CountingFruit \cite{li2025} use 3D Gaussian splatting to significantly speed up reconstruction, but they remain within the framework of scene-specific optimization.
-\section{3D-Reconstruction}
+thereby overcoming the previous separation of reconstruction and segmentation. However, since the NeRF representation used must be optimized per scene, the computational cost remains high. This limitaion forms the immediate starting point of this work. More recent works address this by replacing per-scene optimization with faster representations: FruitGaussian \cite{hong2025} and CountingFruit \cite{li2025} use 3D Gaussian splatting to significantly speed up reconstruction, but they remain within the framework of scene-specific optimization.
 
 \chapter{Fundamentals}
 \section{VGGT}
-VGGT (Visual Geometry GRounded Transformer) \cite{wang2025vggt} is a feed-forward transformer that predicts the key 3D attributes of a scene directly from a set of RGB images. In contrast to classical structure-from-motion methods, which estimate the geometry via iterative optimization  techniques
-such as bundle adjustment, VGGT generates its prediction in a single forward pass and requires no scene-specific post-optimization.
+The central component of the reconstruction stage in this work is VGGT (Visual Geometry Grounded Transformer), a feed-forward transformer introduced by Wang et al. \cite{wang2025vggt} and awarded the Best Paper Award at CVPR 2025. In this section, we first contextualize VGGT within the broader field of 3D reconstruction and then examine its input, data, internal pipeline, and outputs. Finally, we discuss the properties that make a suitable foundation for our couting method.
 
-he input is a sequence of $N$ RGB images $I_i \in \mathbb{R}^{3 \times H \times W}$ that observes the same scene; camera parameters do not need to be known in advance.
-For each image, the network predicts camera extrinsics and intrinsics, a depth map, a point map, and features for tracking pixel points. 
+\subsection{Context}
+\label{sec:vggt_classification}
+Reconstructing the three-dimensional structure of a scene from a set of two-dimensional images is a long-standing problem in computer vision \cite{hartley2004multiple}. The classical solution is a multi-stage pipeline consisting of Structure-from-Motion (SfM) and Multi-View Stereo (MVS).In the implementation by Schönberger and Frahm \cite{schoenberger2016sfm}, SfM estimates the camera poses as well as a sparsely populated point cloud by extracting and matching handcrafted features across the images, followed by an iterative optimization process known as bundle adjustment. A subsequent MVS step then densifies this reconstruction. While these methods are accurate and remain widely used, they rely on iterative optimization that is computationally expensive and can take several minutes to hours per scene to complete.
 
-The point map is the most important output for this work. It assigns to each pixel $y$ of an image a 3D scene coordinate $P_i(y) \in \mathbb{R}^{3}$ and thus provides a dense, pixel-by-pixel 3D-reconstruction.
-Crucially, the point maps of all images are defined in the same coordinate system: They are expressed in the reference frame of the first camera, which serves as the world origin.
-Points observed in different views are therefore already located in a shared 3D space, which forms the basis for the subsequent mapping of instances across multiple views.
+More recently, learning-based approaches have replaced parts of this pipeline with neural networks. Neural Radiance Fields (NeRFs) \cite{mildenhall2020nerf} represent a scene as a volumetric radiance function encoded in the weights of a neural network, while 3D Gaussian Splatting \cite{kerbl3Dgaussians} models it as a collection of colored Gaussian distributions. Both produce high-quality reconstructions but require separate optimization for each individual scene, which again incurs a substantial runtime cost per reconstruction.
 
-Architecturally, VGGT first converts the input images into tokens using a DINO model \cite{oquab2024dinov2} and then alternates across several layers between per-image and global self-attention, before specialzed prediciton heads
-generate the camera parameters and dense outputs.
+A different line of work aims to eliminate per-scene optimization entirely by predicting geometry with a neural network. DUSt3R \cite{wang2024dust3r} pioneered this \emph{feed-forward} principle by regressing a dense pointmap from an image pair in a single network pass, followed by MASt3R \cite{mast3r_eccv24}, which added feature mapping. However, these methods operate on image pairs and still require a global alignment step to fuse the pairwise predictions into a consistent scene. VGGT \cite{wang2025vggt} belongs to this feed-forward family, but generalized it from pairs to arbitrary sets of images: It processes one, a few, or up to hundreds of views together in a single forward pass and predicts a globally consistent reconstruction without any subsequent optimization. This combination of speed and multi-view consistency motivates its use in this work, where fast reconstruction is a central goal.
 
+\subsection{Input Data}
+The input for VGGT is a sequence of $N$ RGB images $(I_i)_{i=1}^{N}$ with $I_i \in \mathbb{R}^{3 \times H \times W}$, which capture the same static scene. Unluke the classical SfM pipeline, no camera parameters, calibration data, or prior pose information need to be provided: The model derives all geometric quantities directly from the image content. The number of views $N$ is flexible and can range from a single image to several hundred, with the only practical limitation being the available GPU memory, since all views are processed jointly\cite{wang2025vggt}.
+
+\subsection{Pipeline}
+Internally, VGGT maps the input sequence through tree conceptual stages to a set of dense 3D predictions: tokenization, alternating attention, and task-specific prediction heads. An overview is shown in Figure \todo{VGGT Pipeline Figure}.
+
+\paragraph{Tokenization.}
+Each input image $I_i$ is first divided into non-overlapping image patches, which are encoded by a pre-trained DINOv2 backbone \cite{oquab2024dinov2} into a set of tokens. These tokens carry local appearance and structural information for their respective image regions. For each image, the patch totems are augmented with additional learnable tokens: a \emph{camera token}, which aggregates the information needed to predict the camera parameters of this image, as well as a set of \emph{register tokens}, which serve as auxiliary memory during the attention calculation an are discarded before the final prediction.
+
+\paragraph{Alternating Attention.}
+The core of the network is a transformer that processes all tokens of all images jointly. It consists of $24$ attention blocks that alternate between two types of self-attention. In \emph{frame-wise} self-attention, tokens attend only to other tokens of the same image, which preserves and refines the local structure of each image. In \emph{global} self-attention, all tokens attend to one another across all images, thereby exchanging information between views and establishing the correspondences that link the individual images into a single, coherent scene. By alternating between these two modes, the network baalnces local detail with global multi-view consistency. This alternating attention design is the central architectural mechanism of VGGT; the authors show that it is superior to both purely global attention and cross-attention alternatives \cite{wang2025vggt}.
+
+\paragraph{Prediction Heads.}
+After the attention blocks, the refined tokens are passed to specialized prediction heads. A dedicated \emph{camera head} processes the camera tokens to regress the intrinsic and extrinsic camera parameters of each view. A \emph{DPT head} \cite{Ranftl2021}, a Dense Prediction Transformer, upsamples the image tokens back to the input resolutions to generate the dense, pixel wise outputs, namely depth maps, point maps, tracking features, and the corresponding confidence maps. 
+
+\subsection{Output}
+For each input iamge $I_i$, VGGT predicts the following quantities:
+\begin{itemize}
+    \item camera extrinsics and intrinsics of the view,
+    \item a dense depth map together with a per-pixel confidence map,
+    \item a dense point map together with a per-pixel confidence map, and
+    \item dense feature maps used for tracking pixels across views.
+\end{itemize}
+
+The point map is the output most relevant to this work. It assigns a 3D scene coordinate $P_i(y) \in \mathbb{R}^{3}$ to every pixel $y$ of an image, thereby representing a dense, pixel-wise 3D reconstruction. Crucially, the point maps of all images are expressed in a single, common coordinate system: they are defined in the reference frame of the first camera, which serves as the world origin \cite{wang2025vggt}. Points observed in different views therefore already lie in a common 3D space without requiring an explicit alignment or registration step. This shared coordinate frame is the property our method builds upon, as it allows 2D instance masks from different views to be related to one another purely through their 3D coordinates. 
+
+Each dense prediction is accompanied by a confidence map that estimates the pixel-wise reliability of the reconstruction. These confidence values provide a signal for identifying and filtering out unreliable regions, such as poorly observed or geometrically ambiguous areas \cite{wang2025vggt}.
+
+\subsection{Advantages and limitations}
+The main advantage of VGGT for our application is its speed. Since the entire reconstruction is generated in a single forward pass, a scene can be reconstructed in a matter of seconds, whereas the SfM-based and scene-specific optimization approaches discussed in Section \ref{sec:vggt_classification} take minutes to hours. At the same time, according to the authors, VGGT matches or exceeds the accuracy of these optimization-based alternatives across multiple 3D tasks \cite{wang2025vggt}, and does so without any post-processing. Another practical advantage is that it operates directly on uncalibrated images and outputs camera parameters, depth, and point maps together, so that no separate calibration or psoe estimation step is required.
+
+The fundamental limitationis that all input views are processed collectively via global self-attention, whose memory requirements increase with the number of tokens and, consequently, with the number of input views. The authors note that a naive implementation can become very memory intensive when dealing with a large number of tokens, so that in practice, the available GPU memory limits the number of images that can be reconstructed together \cite{wang2025vggt}. This constraint is directly relevant to our scenario, in which a fruit tree must be captured from all sides: The limited view budget forces a sparse distribution of cameras around the scene, which in turn weakens the correspondences between neighboring views. A number of follow-up works address this scaling limit, for example by processing long sequences in segments, as in VGGT-Long \cite{deng2025vggtlongchunkitloop} and VGGT-SLAM \cite{maggio2025vggtslam}, or by scaling up to thousands of images as in Fast3R \cite{Yang_2025_Fast3R}; Pi3 \cite{wang2025pi} additionally eliminates the dependence on a fixed reference view. These extensions are beyond the scope of this work, which uses the original VGGT model.
 
 % German: Methode
 \chapter{Method}
@@ -237,6 +249,7 @@ Figure placement is best done with the default \texttt{figure} environment.
 To reference a figure use \texttt{figref}, for example \figref{fig:my_label}.
 If possible, always create figures as vector graphics. 
 For example an overview / pipeline graphic of your method should always be a vector graphic.
+test123
 Vector graphics allow zooming into figures without a loss in quality of the figure.
 Vector graphics can be exported in PDF format from common editing programs, which allows including them in Latex with \texttt{includegraphics}.
 Raster images should only be used in your thesis when an image is shown, that is naturally rendered at a given resolution, e.g., a result image of a rendering algorithm.
