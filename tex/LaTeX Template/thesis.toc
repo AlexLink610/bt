@@ -9,16 +9,14 @@
 \contentsline {paragraph}{Tokenization.}{6}{section*.5}%
 \contentsline {paragraph}{Alternating Attention.}{6}{section*.6}%
 \contentsline {paragraph}{Prediction Heads.}{6}{section*.7}%
-\contentsline {subsection}{\numberline {3.1.4}Output}{6}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.4}Output}{7}{subsection.3.1.4}%
 \contentsline {subsection}{\numberline {3.1.5}Advantages and limitations}{7}{subsection.3.1.5}%
-\contentsline {chapter}{\numberline {4}Method}{9}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Tense}{9}{section.4.1}%
-\contentsline {section}{\numberline {4.2}I, We, Passive voice}{9}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Equations}{9}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Figures}{9}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Tables}{10}{section.4.5}%
-\contentsline {chapter}{\numberline {5}Implementation}{11}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Listings}{11}{section.5.1}%
-\contentsline {chapter}{\numberline {6}Results}{13}{chapter.6}%
-\contentsline {chapter}{\numberline {7}Conclusions}{15}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Tips}{15}{section.7.1}%
+\contentsline {section}{\numberline {3.2}Graph Theory}{8}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Basic concepts}{8}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Union-Find}{9}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Hungarian Matching}{9}{section.3.3}%
+\contentsline {section}{\numberline {3.4}RANSAC}{9}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Clustering}{9}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Method}{11}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Results}{13}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Conclusions}{15}{chapter.6}%

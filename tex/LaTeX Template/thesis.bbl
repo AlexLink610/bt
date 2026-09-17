@@ -339,6 +339,52 @@
       \verb 10.1109/ICIIP68302.2025.11346118
       \endverb
     \endentry
+    \entry{cormen2009algorithms}{book}{}{}
+      \name{author}{4}{}{%
+        {{hash=835b8c52757d98c15859b416316d9820}{%
+           family={Cormen},
+           familyi={C\bibinitperiod},
+           given={Thomas\bibnamedelima H.},
+           giveni={T\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=a389dea91a76366c4b4af5f52a928a76}{%
+           family={Leiserson},
+           familyi={L\bibinitperiod},
+           given={Charles\bibnamedelima E.},
+           giveni={C\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=3a964821f97ee17f8bb285bc61c52899}{%
+           family={Rivest},
+           familyi={R\bibinitperiod},
+           given={Ronald\bibnamedelima L.},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=bc78426660400760f77758aec45e71a8}{%
+           family={Stein},
+           familyi={S\bibinitperiod},
+           given={Clifford},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cambridge, MA}%
+      }
+      \list{publisher}{1}{%
+        {MIT Press}%
+      }
+      \strng{namehash}{c251cdfd036d9474565c517e73c19c5d}
+      \strng{fullhash}{10f004e08c7c03d98be0da1231a869ce}
+      \strng{fullhashraw}{10f004e08c7c03d98be0da1231a869ce}
+      \strng{bibnamehash}{10f004e08c7c03d98be0da1231a869ce}
+      \strng{authorbibnamehash}{10f004e08c7c03d98be0da1231a869ce}
+      \strng{authornamehash}{c251cdfd036d9474565c517e73c19c5d}
+      \strng{authorfullhash}{10f004e08c7c03d98be0da1231a869ce}
+      \strng{authorfullhashraw}{10f004e08c7c03d98be0da1231a869ce}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{isbn}{978-0262033848}
+      \field{title}{Introduction to Algorithms}
+      \field{year}{2009}
+    \endentry
     \entry{deng2025vggtlongchunkitloop}{misc}{}{}
       \name{author}{5}{}{%
         {{hash=626ad9b8307b4459b3cf1750b831b2d3}{%

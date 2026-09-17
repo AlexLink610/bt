@@ -2408,6 +2408,8 @@
     <bcf:citekey order="33" intorder="1">maggio2025vggtslam</bcf:citekey>
     <bcf:citekey order="34" intorder="1">Yang_2025_Fast3R</bcf:citekey>
     <bcf:citekey order="35" intorder="1">wang2025pi</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">cormen2009algorithms</bcf:citekey>
+    <bcf:citekey order="37" intorder="1">cormen2009algorithms</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
