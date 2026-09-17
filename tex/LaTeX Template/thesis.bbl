@@ -635,6 +635,67 @@
       \verb 10.23919/CCC64809.2025.11179457
       \endverb
     \endentry
+    \entry{hu2026ccgs}{article}{}{}
+      \name{author}{7}{}{%
+        {{hash=379aa5dadc04e79f4ac017f15cdb02e4}{%
+           family={Hu},
+           familyi={H\bibinitperiod},
+           given={Wenhao},
+           giveni={W\bibinitperiod}}}%
+        {{hash=7b33be6c9a33e017643aed217b00e943}{%
+           family={Chai},
+           familyi={C\bibinitperiod},
+           given={Wenhao},
+           giveni={W\bibinitperiod}}}%
+        {{hash=d383b79bf872e8fd8d0a694be992bd1f}{%
+           family={Hao},
+           familyi={H\bibinitperiod},
+           given={Shengyu},
+           giveni={S\bibinitperiod}}}%
+        {{hash=0b7b634da6c0d95d8cfa45702f08032b}{%
+           family={Cui},
+           familyi={C\bibinitperiod},
+           given={Xiaotong},
+           giveni={X\bibinitperiod}}}%
+        {{hash=f358f0b250297f484ac972cbde9e5e06}{%
+           family={Wen},
+           familyi={W\bibinitperiod},
+           given={Xuexiang},
+           giveni={X\bibinitperiod}}}%
+        {{hash=991d4821781040e26b0206e01e024613}{%
+           family={Hwang},
+           familyi={H\bibinitperiod},
+           given={Jenq{-}Neng},
+           giveni={J\bibinitperiod}}}%
+        {{hash=0b6c7066db1f88fa79c0cfd10d69d841}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Gaoang},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{ed346aa39d9d0659da5cf3bdd7c58a97}
+      \strng{fullhash}{35e832b390e2f0f828e037f5906b980b}
+      \strng{fullhashraw}{35e832b390e2f0f828e037f5906b980b}
+      \strng{bibnamehash}{35e832b390e2f0f828e037f5906b980b}
+      \strng{authorbibnamehash}{35e832b390e2f0f828e037f5906b980b}
+      \strng{authornamehash}{ed346aa39d9d0659da5cf3bdd7c58a97}
+      \strng{authorfullhash}{35e832b390e2f0f828e037f5906b980b}
+      \strng{authorfullhashraw}{35e832b390e2f0f828e037f5906b980b}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Computer Vision}
+      \field{number}{6}
+      \field{title}{Pointmap Association and Piecewise-Plane Constraint for Consistent and Compact 3D Gaussian Segmentation Field}
+      \field{volume}{134}
+      \field{year}{2026}
+      \field{pages}{255}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1007/s11263-026-02821-3
+      \endverb
+    \endentry
     \entry{kerbl3Dgaussians}{article}{}{}
       \name{author}{4}{}{%
         {{hash=c73d638ffd25328757379835747302ff}{%
@@ -683,7 +744,7 @@
       \verb https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
       \endverb
     \endentry
-    \entry{mast3r_eccv24}{misc}{}{}
+    \entry{mast3r_eccv24}{inproceedings}{}{}
       \name{author}{3}{}{%
         {{hash=56306aad24e83463892152ec58668e19}{%
            family={Leroy},
@@ -713,8 +774,8 @@
       \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{ECCV}
-      \field{title}{Grounding Image Matching in 3D with MASt3R}
+      \field{booktitle}{Proceedings of the European Conference on Computer Vision (ECCV)}
+      \field{title}{Grounding Image Matching in 3D with {MASt3R}}
       \field{year}{2024}
     \endentry
     \entry{li2025}{misc}{}{}
@@ -1305,7 +1366,7 @@
       \field{title}{{DINOv2}: Learning Robust Visual Features without Supervision}
       \field{year}{2024}
     \endentry
-    \entry{Ranftl2021}{article}{}{}
+    \entry{Ranftl2021}{inproceedings}{}{}
       \name{author}{3}{}{%
         {{hash=f13b87ed1a6410067504966eac03e9a2}{%
            family={Ranftl},
@@ -1335,7 +1396,7 @@
       \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{ArXiv preprint}
+      \field{booktitle}{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}
       \field{title}{Vision Transformers for Dense Prediction}
       \field{year}{2021}
     \endentry
@@ -1547,6 +1608,47 @@
       \field{journaltitle}{arXiv preprint arXiv:2507.13347}
       \field{title}{{$\pi^3$}: Permutation-Equivariant Visual Geometry Learning}
       \field{year}{2025}
+    \endentry
+    \entry{yan2024maskclustering}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=2ae489192e9b729c8299b9b7e4b3c3c2}{%
+           family={Yan},
+           familyi={Y\bibinitperiod},
+           given={Mi},
+           giveni={M\bibinitperiod}}}%
+        {{hash=d6f6a46e69099c317597bab0f43211a9}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Jiazhao},
+           giveni={J\bibinitperiod}}}%
+        {{hash=4a21facded71b2c81786f156cd7c6591}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Yan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=09f3bb0a381bac10cf1f95927c363aba}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={He},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{ac2af28ec45b020a6153b5c6a2bd1bca}
+      \strng{fullhash}{5c96554c8b3d539b00d466b72c77e9f2}
+      \strng{fullhashraw}{5c96554c8b3d539b00d466b72c77e9f2}
+      \strng{bibnamehash}{5c96554c8b3d539b00d466b72c77e9f2}
+      \strng{authorbibnamehash}{5c96554c8b3d539b00d466b72c77e9f2}
+      \strng{authornamehash}{ac2af28ec45b020a6153b5c6a2bd1bca}
+      \strng{authorfullhash}{5c96554c8b3d539b00d466b72c77e9f2}
+      \strng{authorfullhashraw}{5c96554c8b3d539b00d466b72c77e9f2}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{title}{MaskClustering: View Consensus Based Mask Graph Clustering for Open-Vocabulary 3D Instance Segmentation}
+      \field{year}{2024}
+      \field{pages}{28274\bibrangedash 28284}
+      \range{pages}{11}
     \endentry
     \entry{Yang_2025_Fast3R}{inproceedings}{}{}
       \name{author}{9}{}{%

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.14)  17 SEP 2026 18:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.14)  17 SEP 2026 23:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1210,12 +1210,12 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
 
 
 pdfTeX warning: pdflatex (file ./logos/vce/black-stencil-right-label-tight.pdf): PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed
-<logos/vce/black-stencil-right-label-tight.pdf, id=82, 110.48276pt x 26.70818pt>
+<logos/vce/black-stencil-right-label-tight.pdf, id=98, 110.48276pt x 26.70818pt>
 File: logos/vce/black-stencil-right-label-tight.pdf Graphic file (type pdf)
 <use logos/vce/black-stencil-right-label-tight.pdf>
 Package pdftex.def Info: logos/vce/black-stencil-right-label-tight.pdf  used on input line 109.
 (pdftex.def)             Requested size: 103.06819pt x 24.91489pt.
-<logos/cogcovi/cogcovi.jpg, id=83, 1003.75pt x 1003.75pt>
+<logos/cogcovi/cogcovi.jpg, id=99, 1003.75pt x 1003.75pt>
 File: logos/cogcovi/cogcovi.jpg Graphic file (type jpg)
 <use logos/cogcovi/cogcovi.jpg>
 Package pdftex.def Info: logos/cogcovi/cogcovi.jpg  used on input line 109.
@@ -1312,44 +1312,43 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 20.74pt on input line 127.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
 (Font)              scaled to size 20.74pt on input line 127.
-Package hyperref Info: bookmark level for unknown todo defaults to 0 on input line 140.
-[1
+Package hyperref Info: bookmark level for unknown todo defaults to 0 on input line 138.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 14.4pt on input line 143.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 14.4pt on input line 143.
 
-] [2
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [1
+
+] [2]
+Chapter 2.
+[3
 
 ]
-Chapter 2.
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 14.4pt on input line 155.
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
-(Font)              scaled to size 14.4pt on input line 155.
-
-Overfull \hbox (7.50945pt too wide) in paragraph at lines 162--165
-[]\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) To struc-turally avoid dou-ble count-ing, later stud-ies shifted the count-ing en-tirely into three-dimensional
- []
-
-[3] [4]
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
+(Font)              scaled to size 10.95pt on input line 172.
+ [4{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_7grukw.enc}]
 Chapter 3.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
-(Font)              scaled to size 12.0pt on input line 173.
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 10.95pt on input line 179.
+(Font)              scaled to size 12.0pt on input line 180.
 [5
 
-{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_7grukw.enc}] [6{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusMI.enc}{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusMR.enc}{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusBB.enc}]
-LaTeX Font Info:    Trying to load font information for TS1+LinuxLibertineT-TLF on input line 203.
+] [6{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusMI.enc}{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusMR.enc}{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertinust1math/libusBB.enc}]
+LaTeX Font Info:    Trying to load font information for TS1+LinuxLibertineT-TLF on input line 210.
  (C:\Users\alex\AppData\Local\Programs\MiKTeX\tex/latex/libertine\ts1linuxlibertinet-tlf.fd
 File: TS1LinuxLibertineT-TLF.fd 2017/03/20 (autoinst) Font definitions for TS1/LinuxLibertineT-TLF.
 )
 LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 10.95pt on input line 203.
+(Font)              scaled to size 10.95pt on input line 210.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `LinuxLibertineT-TLF' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
  [7{C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_naooyc.enc}]
 
-LaTeX Warning: Reference `sec:hungarian' on page 8 undefined on input line 226.
+LaTeX Warning: Reference `sec:hungarian' on page 8 undefined on input line 233.
 
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
@@ -1395,14 +1394,14 @@ Chapter 6.
 
 ]
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 10.95pt on input line 265.
+(Font)              scaled to size 10.95pt on input line 272.
 
-Overfull \hbox (30.82515pt too wide) in paragraph at lines 266--266
+Overfull \hbox (30.82515pt too wide) in paragraph at lines 273--273
 \T1/LinuxLibertineT-TLF/m/n/10.95 (-20) works''. In: \T1/LinuxLibertineT-TLF/m/it/10.95 (-20) AgriEngi-neer-ing \T1/LinuxLibertineT-TLF/m/n/10.95 (-20) 7.5 (2025), p. 152. \T1/LinuxLibertineT-TLF/m/sc/10.95 (-20) issn\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) : 2624-7402. \T1/LinuxLibertineT-TLF/m/sc/10.95 (-20) doi\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) : []$\T1/cmtt/m/n/10.95 10 . 3390 / agriengineering7050152$[]\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) . 
  []
 
 
-Overfull \hbox (27.93011pt too wide) in paragraph at lines 266--266
+Overfull \hbox (27.93011pt too wide) in paragraph at lines 273--273
 \T1/LinuxLibertineT-TLF/m/n/10.95 (-20) bridge, UK: Cam-bridge Uni-ver-sity Press, 2004. \T1/LinuxLibertineT-TLF/m/sc/10.95 (-20) isbn\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) : 978-0521540513. \T1/LinuxLibertineT-TLF/m/sc/10.95 (-20) doi\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) : []$\T1/cmtt/m/n/10.95 10 . 1017 / CBO9780511811685$[]\T1/LinuxLibertineT-TLF/m/n/10.95 (-20) . 
  []
 
@@ -1410,47 +1409,47 @@ Overfull \hbox (27.93011pt too wide) in paragraph at lines 266--266
 
 ]
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/n' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/n' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/n' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/it' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/it' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/m/it' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathsym/m/n' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathsym/m/n' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathsym/m/n' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathex/m/n' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathex/m/n' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS2/libertinust1mathex/m/n' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1mathbb/m/n' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1mathbb/m/n' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1mathbb/m/n' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/n' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/n' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/n' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/it' will be
-(Font)              scaled to size 10.0pt on input line 266.
+(Font)              scaled to size 10.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/it' will be
-(Font)              scaled to size 7.0pt on input line 266.
+(Font)              scaled to size 7.0pt on input line 273.
 LaTeX Font Info:    Font shape `LS1/libertinust1math/b/it' will be
-(Font)              scaled to size 5.0pt on input line 266.
+(Font)              scaled to size 5.0pt on input line 273.
  [29] (thesis.aux)
  ***********
 LaTeX2e <2025-11-01>
@@ -1461,23 +1460,23 @@ L3 programming layer <2025-12-24>
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 3A63563725905711B10401776932FFA3;2182.
+(rerunfilecheck)             Checksum: AF2672CA72BD5EACB77DDFC83E824546;2850.
 Package logreq Info: Writing requests to 'thesis.run.xml'.
 \openout1 = `thesis.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 43488 strings out of 467870
- 898508 string characters out of 5418839
- 1679480 words of memory out of 5000000
- 71365 multiletter control sequences out of 15000+600000
- 754355 words of font info for 300 fonts, out of 8000000 for 9000
+ 43528 strings out of 467870
+ 899518 string characters out of 5418839
+ 1680757 words of memory out of 5000000
+ 71383 multiletter control sequences out of 15000+600000
+ 755916 words of font info for 310 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 95i,11n,142p,1306b,2125s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 95i,11n,142p,1626b,2130s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\alex\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1095.pk><C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertinust1math/LibertinusT1Math.pfb><C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineT.pfb><C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTB.pfb><C:/Users/alex/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTI.pfb>
-Output written on thesis.pdf (35 pages, 1343894 bytes).
+Output written on thesis.pdf (35 pages, 1352862 bytes).
 PDF statistics:
- 483 PDF objects out of 1000 (max. 8388607)
- 93 named destinations out of 1000 (max. 500000)
- 58031 words of extra memory for PDF output out of 61914 (max. 10000000)
+ 513 PDF objects out of 1000 (max. 8388607)
+ 100 named destinations out of 1000 (max. 500000)
+ 58063 words of extra memory for PDF output out of 61914 (max. 10000000)
 
