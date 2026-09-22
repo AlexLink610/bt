@@ -2378,53 +2378,64 @@
     <bcf:citekey order="3" intorder="1">miranda2023</bcf:citekey>
     <bcf:citekey order="4" intorder="1">meyer2024fruitnerf</bcf:citekey>
     <bcf:citekey order="5" intorder="1">mildenhall2020nerf</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">carion2026sam3segmentconcepts</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">hu2026ccgs</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">carion2026sam3segmentconcepts</bcf:citekey>
     <bcf:citekey order="8" intorder="1">hu2026ccgs</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">haeni2019</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">miranda2023</bcf:citekey>
-    <bcf:citekey order="11" intorder="1">ballenaruiz2025</bcf:citekey>
-    <bcf:citekey order="12" intorder="1">liu2018</bcf:citekey>
-    <bcf:citekey order="13" intorder="1">rameshchandra2025</bcf:citekey>
-    <bcf:citekey order="14" intorder="1">liu2019</bcf:citekey>
-    <bcf:citekey order="15" intorder="1">haeni2019</bcf:citekey>
-    <bcf:citekey order="16" intorder="1">meyer2024fruitnerf</bcf:citekey>
-    <bcf:citekey order="17" intorder="1">hong2025</bcf:citekey>
-    <bcf:citekey order="18" intorder="1">li2025</bcf:citekey>
-    <bcf:citekey order="19" intorder="1">genemola2020</bcf:citekey>
-    <bcf:citekey order="20" intorder="1">yan2024maskclustering</bcf:citekey>
-    <bcf:citekey order="21" intorder="1">hu2026ccgs</bcf:citekey>
-    <bcf:citekey order="22" intorder="1">wang2025vggt</bcf:citekey>
-    <bcf:citekey order="23" intorder="1">hartley2004multiple</bcf:citekey>
-    <bcf:citekey order="24" intorder="1">schoenberger2016sfm</bcf:citekey>
-    <bcf:citekey order="25" intorder="1">mildenhall2020nerf</bcf:citekey>
-    <bcf:citekey order="26" intorder="1">kerbl3Dgaussians</bcf:citekey>
-    <bcf:citekey order="27" intorder="1">wang2024dust3r</bcf:citekey>
-    <bcf:citekey order="28" intorder="1">mast3r_eccv24</bcf:citekey>
-    <bcf:citekey order="29" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">hu2026ccgs</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">haeni2019</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">miranda2023</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">ballenaruiz2025</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">liu2018</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">rameshchandra2025</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">liu2019</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">haeni2019</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">meyer2024fruitnerf</bcf:citekey>
+    <bcf:citekey order="18" intorder="1">hong2025</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">li2025</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">genemola2020</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">yan2024maskclustering</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">hu2026ccgs</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="24" intorder="1">hartley2004multiple</bcf:citekey>
+    <bcf:citekey order="25" intorder="1">schoenberger2016sfm</bcf:citekey>
+    <bcf:citekey order="26" intorder="1">mildenhall2020nerf</bcf:citekey>
+    <bcf:citekey order="27" intorder="1">kerbl3Dgaussians</bcf:citekey>
+    <bcf:citekey order="28" intorder="1">wang2024dust3r</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">mast3r_eccv24</bcf:citekey>
     <bcf:citekey order="30" intorder="1">wang2025vggt</bcf:citekey>
-    <bcf:citekey order="31" intorder="1">oquab2024dinov2</bcf:citekey>
-    <bcf:citekey order="32" intorder="1">wang2025vggt</bcf:citekey>
-    <bcf:citekey order="33" intorder="1">Ranftl2021</bcf:citekey>
-    <bcf:citekey order="34" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="32" intorder="1">dosovitskiy2021vit</bcf:citekey>
+    <bcf:citekey order="33" intorder="1">oquab2024dinov2</bcf:citekey>
+    <bcf:citekey order="34" intorder="1">vaswani2017attention</bcf:citekey>
     <bcf:citekey order="35" intorder="1">wang2025vggt</bcf:citekey>
-    <bcf:citekey order="36" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">Ranftl2021</bcf:citekey>
     <bcf:citekey order="37" intorder="1">wang2025vggt</bcf:citekey>
-    <bcf:citekey order="38" intorder="1">deng2025vggtlongchunkitloop</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">maggio2025vggtslam</bcf:citekey>
-    <bcf:citekey order="40" intorder="1">Yang_2025_Fast3R</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">wang2025pi</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">cormen2009algorithms</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">cormen2009algorithms</bcf:citekey>
-    <bcf:citekey order="44" intorder="1">kuhn1955hungarian</bcf:citekey>
-    <bcf:citekey order="44" intorder="2">munkres1957algorithms</bcf:citekey>
-    <bcf:citekey order="45" intorder="1">hu2026ccgs</bcf:citekey>
-    <bcf:citekey order="46" intorder="1">kuhn1955hungarian</bcf:citekey>
-    <bcf:citekey order="47" intorder="1">burkard2009assignment</bcf:citekey>
-    <bcf:citekey order="48" intorder="1">munkres1957algorithms</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">wang2025vggt</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">deng2025vggtlongchunkitloop</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">maggio2025vggtslam</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">Yang_2025_Fast3R</bcf:citekey>
+    <bcf:citekey order="44" intorder="1">wang2025pi</bcf:citekey>
+    <bcf:citekey order="45" intorder="1">cormen2009algorithms</bcf:citekey>
+    <bcf:citekey order="46" intorder="1">cormen2009algorithms</bcf:citekey>
+    <bcf:citekey order="47" intorder="1">kuhn1955hungarian</bcf:citekey>
+    <bcf:citekey order="47" intorder="2">munkres1957algorithms</bcf:citekey>
+    <bcf:citekey order="48" intorder="1">hu2026ccgs</bcf:citekey>
     <bcf:citekey order="49" intorder="1">kuhn1955hungarian</bcf:citekey>
-    <bcf:citekey order="50" intorder="1">munkres1957algorithms</bcf:citekey>
-    <bcf:citekey order="51" intorder="1">hu2026ccgs</bcf:citekey>
+    <bcf:citekey order="50" intorder="1">burkard2009assignment</bcf:citekey>
+    <bcf:citekey order="51" intorder="1">munkres1957algorithms</bcf:citekey>
+    <bcf:citekey order="52" intorder="1">kuhn1955hungarian</bcf:citekey>
+    <bcf:citekey order="53" intorder="1">munkres1957algorithms</bcf:citekey>
+    <bcf:citekey order="54" intorder="1">hu2026ccgs</bcf:citekey>
+    <bcf:citekey order="55" intorder="1">fischler1981ransac</bcf:citekey>
+    <bcf:citekey order="56" intorder="1">fischler1981ransac</bcf:citekey>
+    <bcf:citekey order="57" intorder="1">fischler1981ransac</bcf:citekey>
+    <bcf:citekey order="58" intorder="1">ester1996dbscan</bcf:citekey>
+    <bcf:citekey order="59" intorder="1">ester1996dbscan</bcf:citekey>
+    <bcf:citekey order="60" intorder="1">ester1996dbscan</bcf:citekey>
+    <bcf:citekey order="61" intorder="1">ester1996dbscan</bcf:citekey>
+    <bcf:citekey order="62" intorder="1">hastie2009elements</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
