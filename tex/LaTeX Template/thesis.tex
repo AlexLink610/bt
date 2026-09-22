@@ -135,10 +135,12 @@
 %    \item How will you evaluate the method?
 %    \item What are your most important findings?
 %\end{itemize}
-Automatic fruit counting based on images is a key task in precision agriculture, where accurate yield estimates support harvest planning and resource allocation. \todo{citation}
-Reconstructing a fruit tree scene in 3D using a series of RGB images and counting the fruits it contains is appealing because it requires only inexpensive and widely available camera hardware, rather than specialized depth sensors. 
+Feeding a growing world population is a major global challenge, and projections estimate that total food demand will rise substantially over the coming decades \cite{vandijk2021foodsecurity}. Precision agriculture responds to this by using advanced technology and data analysis to maximize crop yields while reducing waste and environmental impact \cite{karunathilake2023precision}. Within precision agriculture, counting the fruit on a tree is an important building block: it provides the yield estimates that growers rely on to plan the harvest and allocate labor, storage, and other resouces \cite{miranda2023}. Because performing the count manually across many trees is slow and labor-intensive, automating it from images is a valuable capability.
 
-Recent work such as FruitNeRF \cite{meyer2024fruitnerf} shows that this is possible by training a Neural Radiance Field \cite{mildenhall2020nerf} per scene and counting the fruits in the resulting volumetric representation. This approach is effective but requires a time-consuming, scene-specific optimization. In this work, we instead investigate whether a feed-forward multi-view stereo model, VGGT \cite{wang2025vggt}, can replace this scene-by-scene training. Instead of optimizing a representation of each scene, VGGT predicts a 3D reconstruction in a single forward pass. This promises a significant reduction in runtime, but raises the central question of wether the resulting geometry is sufficiently accurate for reliable counting.
+Among the ways to automate fruit counting, reconstructing the tree in 3D from a set of RGB images is particularly attractive, for two reasons. First, lifting the count into a shared three-dimensional representation lets each fruit be counted exactly once, instead of being counted repeatedly across the many overlapping images in which it appears. Second, the only hardware this requires is an ordinary color camera, of the kind build into any consumer device. This avoids the specialized and more expensive depth-sensing equipment, such as LiDAR scanners or calibrated stereo rigs, on which other 3D-caprure methods depend, and makes the approach inexpensive and easy to deploy in the field.
+\todo[inline]{citation for cost, other 3D capture methods}
+
+Recent work such as FruitNeRF \cite{meyer2024fruitnerf} shows that image-based 3D fruit counting is feasibly by training a Neural Radiance Field \cite{mildenhall2020nerf} per scene and counting the fruit in the resulting volumetric representation. This approach
 
 \section{Challenges}
 
@@ -165,7 +167,7 @@ To resolve this, a second line of work tracks fruit across consecutive frames. L
 A third line of work removes double counting structurally by moving the count into three dimensions, so that each fruit exists once in a shared spatial representation. Häni et al. \cite{haeni2019} reconstructed rows of trees from both sides and merged the counts fromthe combined 3D models. FruitNeRF \cite{meyer2024fruitnerf} takes this idea furthest by integrating the counting directly into a neural scene representation, unifying reconstruction and segmentation that earlier methods had kept separate. Its drawback is that the neural representation must be optimized for each scene, which is computationally expensive; this cost is the immediate starting point of the present work. Newer methods reduce it by replacing the neural field with faster representations, suhc as the 3D Gaussian splatting used by FruitGaussian \cite{hong2025} and CountingFruit \cite{li2025}, but they remain tied to a per-scene optimization. A different way to avoid this optimization is to associate instance masks across views through a 3D representation rather than to optimize one; since this is the strategy of the present work, we treat it separately in the next section.
 
 \section{Multi-View Instance Association and 3D Segmentation}
-Associationg 2D instance masks across many views into consistent 3D instances is a problem closely related to fruit counting, and one that general-purpose 3D scene-understanding methods address independently of any counting application. What distinguishes these methods is the criterion by which they decide that two masks seen in different views from the same object.
+Associating 2D instance masks across many views into consistent 3D instances is a problem closely related to fruit counting, and one that general-purpose 3D scene-understanding methods address independently of any counting application. What distinguishes these methods is the criterion by which they decide that two masks seen in different views from the same object.
 
 The most direct criterion is geometric overlap in an explicit reconstruction. Gené-Molá et al. \cite{genemola2020} segment fruit with Mask R-CNN, project the 2D masks into an SfM point could, associate detections by their overlap in 3D, and discard false detections with a support vector machine. The association is accurate but inherits the cost of the underlying SfM reconstruction, which the authors note is computationally intensive and unsuitable for real-time use.
 
@@ -191,8 +193,8 @@ The input for VGGT is a sequence of $N$ RGB images $(I_i)_{i=1}^{N}$ with $I_i \
 
 \subsection{Pipeline}
 \label{sec:vggt_pipeline}
-Internally, VGGT maps the input sequence through tree conceptual stages to a set of dense 3D predictions: tokenization, alternating attention, and task-specific prediction heads. An overview is shown in Figure \todo{VGGT Pipeline Figure}.
-\missingfigure{simply illustration}
+Internally, VGGT maps the input sequence through tree conceptual stages to a set of dense 3D predictions: tokenization, alternating attention, and task-specific prediction heads. An overview is shown in Figure.
+\missingfigure{vggt pipeline figure}
 
 \paragraph{Tokenization.}
 Each input image $I_i$ is first divided into non-overlapping image patches, which are encoded by a pre-trained DINOv2 backbone \cite{oquab2024dinov2} into a set of tokens. These tokens carry local appearance and structural information for their respective image regions. For each image, the patch totems are augmented with additional learnable tokens: a \emph{camera token}, which aggregates the information needed to predict the camera parameters of this image, as well as a set of \emph{register tokens}, which serve as auxiliary memory during the attention calculation an are discarded before the final prediction.
@@ -247,11 +249,41 @@ In our method, we initialize the Union-Find structure with a singleton set per n
 A naive implementation of \texttt{find} can degenerate when the trees become tall, since each call then traverses a long chain of parent pointers. To avoid this, we apply \emph{path compression}: During a \texttt{find} operation, every node visited on the path to the root is immediately appended back to the root \cite{cormen2009algorithms}. This makes repeated lookups on the same set progressively cheaper and keeps the extraction of connected components efficient even for the large nzmber of instance nodes that arise across all views of a scene.
 
 \section{Hungarian Matching}
+\label{sec:hungarian}
+The edges of the graph introduced in Section \ref{sec:graph_basics} are established by matching instance masks between pairs of veiws. We formulate this matching as a \emph{assignment problem} and solve it using the Hungarian algorithm \cite{kuhn1955hungarian, munkres1957algorithms}. Following the pointmap-based association of CCGS \cite{hu2026ccgs}, the cost of a match is derived from the overlap of two masks in 3D; the details of this cost are given in Chapter \ref{chap:method}, while this section introduces the assignment problem and the algorithm in general terms.
+
+\subsection{The Assignment Problem}
+The assignmetn problem is a classical combinatorial optimizataion problem. In its original formulation \cite{kuhn1955hungarian}, a set of $n$ workers is to be assigned $n$ jobs, given a numerical rating for the performance of each worker on each job, such that the total rating of the chosen assignment is optimal and no worker is assigned more than one job. Our matching task has the same structure: Instead of worker and tasks, we assign the instance masks of one view to those of another, and instead of a performance score, each candidate pair carries a cost value that reflects how likely it is that the two masks represent the same apple.
+
+Consider two views $i$ and $j$, with instance masks indexed by $a \in \{1, \dots, n_i\}$ and $b \in \{1, \dots, n_j\}$ in views $j$. For every pair $(a, b)$, a cost $C_{ab} \geq 0$ expresses how unlikely it is that the two masks depict the same apple, where a lower cost indicates a stronger match. These costs form a cost matrix $C \in \mathbb{R}^{n_i \times n_j}$.
+
+In its standard form, the linear sum assignment problem assumes an equal number of elements on both sides and assigns each element exactly once. Describing an assignment by binary variables $x_{ab} \in \{0, 1\}$, where $x_{ab} = 1$ means that mask $a$ is matched to mask $b$, it is written with equality constraints as $\sum_b x_{ab} = 1$ and $\sum_a x_{ab} = 1$, so that every element receives exactly one partner \cite{burkard2009assignment}. This assumption does not hold in our setting: The two views generally contain different numbers of masks, and a mask may have no counterpart at all when the apple it depicts is occluded in the other view. We therefore relax the equality constraints to inequalities, so that each mask is matched \emph{at most} once and unmatched masks are permitted. The resulting problem is 
+\begin{align}
+    \label{eq:assignment}
+        \min_{x} \quad & \sum_{a} \sum_{b} C_{ab} \, x_{ab} \\
+        \text{s.t.} \quad & \sum_{b} x_{ab} \leq 1 \quad \forall a, \nonumber\\
+        & \sum_{a} x_{ab} \leq 1 \quad \forall b, \nonumber\\
+        & x_{ab} \in \{0, 1\}. \nonumber
+\end{align}
+Because masks in view $i$ are only ever paired with masks in view $j$, and never with masks in the same view, the underlying structure is a \emph{bipartite} graph: its nodes split into the two disjoint sets of masks, and every candidate match connects one set to the other, with no edges inside either set. The cost matrix $C$ is the weighted adjacency matrix of this bipartite graph, and the assignment problem is the search for a minimum-cost bipartite matching.
+
+The fact that $C$ is generally not square, and that some masks remain unmatched, is therefoer not a defect but the intended behavior: an apple that is visible in one view but occluded in the other should notbe assigned a partner. Each accepted match becomes an edge in the graph of Section \ref{sec:graph_basics}, linking the two corresponding nodes.
+
+\subsection{The Hungarian Algorithm}
+The difficulty of the assignment problem is that the number of possible assignments grows factorially with the number of masks: for two views with $n$ masks each, there are $n!$ distinct one-to-one assignments \cite{munkres1957algorithms}, so enumerating them and picking the cheapest is infeasible for all but the smallest cases. A tempting shortcut is a greedy strategy in which each mask is assigned to its individually best partner. Such a choise is locally optimal but can be globally suboptimal: two masks in view $i$ might both prefer the same mask in view $j$, which violates the one-to-one requirement, and resolving the conflict greedily can force a worse overall assignment than necessary.
+
+The Hungarian algorithm avoids both problems. Introduced by Kuhn \cite{kuhn1955hungarian}, it is named for the the underlying results of the Hungarian mathematicians D. König and E. Egerv\'ary on which it is based, and it computes a globally optimal assignment without enumerating all possibilities. Munkres \cite{munkres1957algorithms} later gave a variant of the method together with a proof that it terminates after a number of operations bounded by a polynomial in $n$, rather than the factorial cost of exhaustive search; because of this joint contribution the method is also konwn as the Kuhn-Munkres algorithm. It therefore solves the problem in \eqref{eq:assignment} exactly and efficiently. In our implementation, we obtain the optimal assignment using a standard solver for the linear assignment problem.
+
+\subsection{Partial Matching}
+The optimal assignment minimizes the total cost, but it does not by itself guarantee that the matched pairs are meaningful: the algorithm will continue to pair two masks whose overlap is negligible if doing so reduces the total cost. To prevent such spurious matches from becoming edges, we allow an assignment to be an edge only if its overlap exceeds a threshold and discard the remaining assignments. This corresponds to allowing \emph{partial matches}, in which not every mask of the smaller view has to be matched, and follows the association strategy of CCGs\cite{hu2026ccgs}. The precise overlap measure and threshold are described in Chapter \ref{chap:method}.
+
+
 \section{RANSAC}
 \section{Clustering}
 
 % German: Methode
 \chapter{Method}
+\label{chap:method}
 
 % German: Ergebnisse
 \chapter{Results}

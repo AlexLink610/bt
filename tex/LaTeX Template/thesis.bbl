@@ -61,6 +61,50 @@
       \verb 10.3390/agriengineering7050152
       \endverb
     \endentry
+    \entry{burkard2009assignment}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=0127ca709b1eba4fb4e4d3422561122d}{%
+           family={Burkard},
+           familyi={B\bibinitperiod},
+           given={Rainer},
+           giveni={R\bibinitperiod}}}%
+        {{hash=ea2fb219da654d57df4e5b7d91bacd43}{%
+           family={Dell'Amico},
+           familyi={D\bibinitperiod},
+           given={Mauro},
+           giveni={M\bibinitperiod}}}%
+        {{hash=355dcd3e47338d7e940120cc6c363cb7}{%
+           family={Martello},
+           familyi={M\bibinitperiod},
+           given={Silvano},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Philadelphia, PA}%
+      }
+      \list{publisher}{2}{%
+        {Society for Industrial}%
+        {Applied Mathematics (SIAM)}%
+      }
+      \strng{namehash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{fullhash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{fullhashraw}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{bibnamehash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{authorbibnamehash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{authornamehash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{authorfullhash}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \strng{authorfullhashraw}{836090d82514f5e3b1cd7f05f1f3ec44}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-0-898716-63-4}
+      \field{title}{Assignment Problems}
+      \field{year}{2009}
+      \verb{doi}
+      \verb 10.1137/1.9780898717754
+      \endverb
+    \endentry
     \entry{carion2026sam3segmentconcepts}{misc}{}{}
       \name{author}{38}{}{%
         {{hash=0cb223da593b5653feac6f6eabcbe82d}{%
@@ -439,6 +483,54 @@
       \verb https://arxiv.org/abs/2507.16443
       \endverb
     \endentry
+    \entry{vandijk2021foodsecurity}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=5efcff70c8f8a24eee0acabe2a3f7bac}{%
+           family={Dijk},
+           familyi={D\bibinitperiod},
+           given={Michiel},
+           giveni={M\bibinitperiod},
+           prefix={van},
+           prefixi={v\bibinitperiod}}}%
+        {{hash=2a856450033b483f483e78b5a89ea31f}{%
+           family={Morley},
+           familyi={M\bibinitperiod},
+           given={Tom},
+           giveni={T\bibinitperiod}}}%
+        {{hash=dc200d0ca9e7ede27d00b905a37a91d8}{%
+           family={Rau},
+           familyi={R\bibinitperiod},
+           given={Marie\bibnamedelima Luise},
+           giveni={M\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=71998a50e01058b42a28f27c66f63317}{%
+           family={Saghai},
+           familyi={S\bibinitperiod},
+           given={Yashar},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{935a5bc82104738e7917eb5df0a33a8e}
+      \strng{fullhash}{184425803f1c91ca92ae81584f5d8ea2}
+      \strng{fullhashraw}{184425803f1c91ca92ae81584f5d8ea2}
+      \strng{bibnamehash}{184425803f1c91ca92ae81584f5d8ea2}
+      \strng{authorbibnamehash}{184425803f1c91ca92ae81584f5d8ea2}
+      \strng{authornamehash}{935a5bc82104738e7917eb5df0a33a8e}
+      \strng{authorfullhash}{184425803f1c91ca92ae81584f5d8ea2}
+      \strng{authorfullhashraw}{184425803f1c91ca92ae81584f5d8ea2}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Food}
+      \field{number}{7}
+      \field{title}{A meta-analysis of projected global food demand and population at risk of hunger for the period 2010--2050}
+      \field{volume}{2}
+      \field{year}{2021}
+      \field{pages}{494\bibrangedash 501}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1038/s43016-021-00322-9
+      \endverb
+    \endentry
     \entry{genemola2020}{article}{}{}
       \name{author}{7}{}{%
         {{hash=543ab881010f5d45d024ae0f83b493c1}{%
@@ -696,6 +788,57 @@
       \verb 10.1007/s11263-026-02821-3
       \endverb
     \endentry
+    \entry{karunathilake2023precision}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=c6f6b9d58c1a939187648488186f6879}{%
+           family={Karunathilake},
+           familyi={K\bibinitperiod},
+           given={E.\bibnamedelimi M.\bibnamedelimi B.\bibnamedelimi M.},
+           giveni={E\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim B\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=4e673a11afacc110600901d25f346a6a}{%
+           family={Le},
+           familyi={L\bibinitperiod},
+           given={Anh\bibnamedelima Tuan},
+           giveni={A\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=70481881f42f5961eb4230bc66a00efa}{%
+           family={Heo},
+           familyi={H\bibinitperiod},
+           given={Seong},
+           giveni={S\bibinitperiod}}}%
+        {{hash=010a806385035924b0ca1dccd8ff7e37}{%
+           family={Chung},
+           familyi={C\bibinitperiod},
+           given={Yong\bibnamedelima Suk},
+           giveni={Y\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=c768bc6dd1ff53bda7ae42d1a75a6186}{%
+           family={Mansoor},
+           familyi={M\bibinitperiod},
+           given={Sheikh},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{8eb06129ba3f5918cd074a14e2857572}
+      \strng{fullhash}{e3cb7025b010ef1b2abf425280f58f49}
+      \strng{fullhashraw}{e3cb7025b010ef1b2abf425280f58f49}
+      \strng{bibnamehash}{e3cb7025b010ef1b2abf425280f58f49}
+      \strng{authorbibnamehash}{e3cb7025b010ef1b2abf425280f58f49}
+      \strng{authornamehash}{8eb06129ba3f5918cd074a14e2857572}
+      \strng{authorfullhash}{e3cb7025b010ef1b2abf425280f58f49}
+      \strng{authorfullhashraw}{e3cb7025b010ef1b2abf425280f58f49}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Agriculture}
+      \field{number}{8}
+      \field{title}{The Path to Smart Farming: Innovations and Opportunities in Precision Agriculture}
+      \field{volume}{13}
+      \field{year}{2023}
+      \field{pages}{1593}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/agriculture13081593
+      \endverb
+    \endentry
     \entry{kerbl3Dgaussians}{article}{}{}
       \name{author}{4}{}{%
         {{hash=c73d638ffd25328757379835747302ff}{%
@@ -742,6 +885,41 @@
       \endverb
       \verb{url}
       \verb https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
+      \endverb
+    \endentry
+    \entry{kuhn1955hungarian}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=9ed32c5059c74c243ab6d851d2010faf}{%
+           family={Kuhn},
+           familyi={K\bibinitperiod},
+           given={Harold\bibnamedelima W.},
+           giveni={H\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \strng{namehash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{fullhash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{fullhashraw}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{bibnamehash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{authorbibnamehash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{authornamehash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{authorfullhash}{9ed32c5059c74c243ab6d851d2010faf}
+      \strng{authorfullhashraw}{9ed32c5059c74c243ab6d851d2010faf}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Naval Research Logistics Quarterly}
+      \field{month}{3}
+      \field{number}{1--2}
+      \field{title}{{The Hungarian Method for the Assignment Problem}}
+      \field{volume}{2}
+      \field{year}{1955}
+      \field{pages}{83\bibrangedash 97}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1002/nav.3800020109
+      \endverb
+      \verb{file}
+      \verb :Kuhn1955Hungarian.pdf:PDF
       \endverb
     \endentry
     \entry{mast3r_eccv24}{inproceedings}{}{}
@@ -1214,6 +1392,46 @@
       \range{pages}{1}
       \verb{doi}
       \verb 10.1016/j.postharvbio.2023.112587
+      \endverb
+    \endentry
+    \entry{munkres1957algorithms}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=46835eb9f51aadc1bdaecd6504a07339}{%
+           family={Munkres},
+           familyi={M\bibinitperiod},
+           given={James},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{fullhash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{fullhashraw}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{bibnamehash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{authorbibnamehash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{authornamehash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{authorfullhash}{46835eb9f51aadc1bdaecd6504a07339}
+      \strng{authorfullhashraw}{46835eb9f51aadc1bdaecd6504a07339}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the Society for Industrial and Applied Mathematics}
+      \field{number}{1}
+      \field{title}{Algorithms for the Assignment and Transportation Problems}
+      \field{volume}{5}
+      \field{year}{1957}
+      \field{pages}{32\bibrangedash 38}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1137/0105003
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.1137/0105003
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1137/0105003
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1137/0105003
       \endverb
     \endentry
     \entry{oquab2024dinov2}{article}{}{}
