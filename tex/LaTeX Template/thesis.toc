@@ -26,6 +26,6 @@
 \contentsline {section}{\numberline {3.5}Clustering}{12}{section.3.5}%
 \contentsline {subsection}{\numberline {3.5.1}Density-Based Clustering}{12}{subsection.3.5.1}%
 \contentsline {subsection}{\numberline {3.5.2}Agglomerative Clustering with complete Linkage}{12}{subsection.3.5.2}%
-\contentsline {chapter}{\numberline {4}Method}{13}{chapter.4}%
-\contentsline {chapter}{\numberline {5}Results}{15}{chapter.5}%
-\contentsline {chapter}{\numberline {6}Conclusions}{17}{chapter.6}%
+\contentsline {chapter}{\numberline {4}Method}{15}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Results}{17}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Conclusions}{19}{chapter.6}%
