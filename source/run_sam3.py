@@ -1,5 +1,5 @@
 """
-run_sam3_instances.py -- Generate per-instance apple masks with SAM3.
+run_sam3.py -- Generate per-instance apple masks with SAM3.
 
 Each output mask is a single grayscale PNG named  mask_<stem>.png  where each
 detected apple is a distinct integer value (1, 2, 3, ...), matching the format
@@ -42,6 +42,8 @@ def main():
                         help="Comma-separated image extensions to include.")
     parser.add_argument("--save_binary_dir", default=None,
                         help="Optional: also save merged binary masks (all apples=255) here.")
+    parser.add_argument("--conf", type=float, default=0.5,
+                        help="SAM3 confidence threshold (default 0.5).")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -59,8 +61,7 @@ def main():
         print("No images found -- check --image_dir and --ext.")
         return
 
-    sam3 = SamGeo3(backend="meta", load_from_HF=True)  # init model
-
+    sam3 = SamGeo3(backend="meta", load_from_HF=True, confidence_threshold=args.conf)
     total_counts = {}
     for i, image_path in enumerate(image_paths):
         fname = os.path.basename(image_path)
@@ -68,8 +69,12 @@ def main():
         print(f"[{i+1}/{len(image_paths)}] Processing {fname}...")
         try:
             sam3.set_image_batch([image_path])
-            sam3.generate_masks_batch(args.prompt, min_size=args.min_size)
-            masks = sam3.batch_results[0]['masks']
+            # min_size=0: samgeo's size filter crashes on images without
+            # detections, so we filter by size ourselves
+            sam3.generate_masks_batch(args.prompt, min_size=0)
+            raw = sam3.batch_results[0]['masks']
+            masks = [np.array(m).squeeze().astype(bool) for m in raw]
+            masks = [m for m in masks if m.sum() >= args.min_size]
             count = len(masks)
             total_counts[fname] = count
             print(f"  -> {count} {args.prompt}(s)")

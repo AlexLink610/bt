@@ -36,6 +36,7 @@ Usage:
 """
 
 import os
+import json
 import argparse
 import random
 import numpy as np
@@ -75,8 +76,13 @@ def get_instance_ids(mask):
 def build_graph_over_nodes(nodes, point_map, masks, H, W,
                            corr_3d_thresh, min_match_overlap):
     """Pairwise correspondence + Hungarian matching over a SET of nodes.
-    Returns list of components (each a list of (image_index, instance_id))."""
+    Returns list of components (each a list of (image_index, instance_id)).
+
+    Same logic as before, vectorized: mask sizes and overlap counts come
+    from bincount, and every component keeps the set of its views, so the
+    same-view check no longer scans all nodes."""
     parent = {n: n for n in nodes}
+    comp_views = {n: {n[0]} for n in nodes}      # root -> views in component
     def find(x):
         while parent[x] != x:
             parent[x] = parent[parent[x]]
@@ -86,16 +92,20 @@ def build_graph_over_nodes(nodes, point_map, masks, H, W,
         ra, rb = find(a), find(b)
         if ra != rb:
             parent[ra] = rb
+            comp_views[rb] |= comp_views.pop(ra)
 
     by_img = {}
     for (im, iid) in nodes:
         by_img.setdefault(im, []).append(iid)
     imgs = sorted(by_img.keys())
 
-    def comp_images(root_node):
-        r = find(root_node)
-        return {im for (im, _) in nodes if find((im, _)) == r} if False else \
-               {im for n in nodes if find(n) == r for (im, _) in [n]}
+    # per view: flat mask, flat points, validity, pixel count per instance id
+    flat = {}
+    for im in imgs:
+        m = masks[im].reshape(-1).astype(np.int64)
+        p = point_map[im].reshape(-1, 3)
+        flat[im] = (m, p, ~np.isnan(p).any(axis=1),
+                    np.bincount(m, minlength=256))
 
     for a_i in range(len(imgs)):
         for b_i in range(a_i + 1, len(imgs)):
@@ -103,50 +113,41 @@ def build_graph_over_nodes(nodes, point_map, masks, H, W,
             ids_i, ids_j = by_img[i], by_img[j]
             if not ids_i or not ids_j:
                 continue
+            mi, pi, vi, size_i = flat[i]
+            mj, pj, vj, size_j = flat[j]
 
-            pj = point_map[j].reshape(-1, 3)
-            mj = masks[j].reshape(-1)
-            apple_j = np.isin(mj, ids_j) & ~np.isnan(pj).any(axis=1)
+            apple_j = np.isin(mj, ids_j) & vj
             idx_j = np.where(apple_j)[0]
             if idx_j.size == 0:
                 continue
-            tree = cKDTree(pj[apple_j])
-
-            pi = point_map[i].reshape(-1, 3)
-            mi = masks[i].reshape(-1)
-            apple_i = np.isin(mi, ids_i) & ~np.isnan(pi).any(axis=1)
+            apple_i = np.isin(mi, ids_i) & vi
             idx_i = np.where(apple_i)[0]
             if idx_i.size == 0:
                 continue
+            tree = cKDTree(pj[apple_j])
             dist, nn = tree.query(pi[apple_i], workers=-1)
-            corr = np.full(H * W, -1, dtype=np.int64)
             good = dist < corr_3d_thresh
-            corr[idx_i[good]] = idx_j[nn[good]]
 
-            C = np.ones((len(ids_i), len(ids_j)), dtype=np.float32)
-            for ai, a in enumerate(ids_i):
-                pix_a = np.where(mi == a)[0]
-                size_a = len(pix_a)
-                if size_a == 0:
-                    continue
-                ca = corr[pix_a]
-                val = ca >= 0
-                landed = mj[ca[val]] if val.any() else np.array([], int)
-                for bi, b in enumerate(ids_j):
-                    size_b = int((mj == b).sum())
-                    if min(size_a, size_b) == 0:
-                        continue
-                    ov = int((landed == b).sum())
-                    frac = min(ov / min(size_a, size_b), 1.0)
-                    C[ai, bi] = 1.0 - frac
+            # overlap[a, b] = pixels of a whose correspondence lies in b
+            src = mi[idx_i[good]]
+            dst = mj[idx_j[nn[good]]]
+            hist = np.bincount(src * 256 + dst,
+                               minlength=256 * 256).reshape(256, 256)
+            ia, jb = np.array(ids_i), np.array(ids_j)
+            ov = hist[np.ix_(ia, jb)].astype(np.float64)
+            denom = np.minimum(size_i[ia][:, None], size_j[jb][None, :])
+            frac = np.where(denom > 0,
+                            np.minimum(ov / np.maximum(denom, 1), 1.0), 0.0)
+            C = np.where(denom > 0, 1.0 - frac, 1.0).astype(np.float32)
 
             row, col = linear_sum_assignment(C)
             for ai, bi in zip(row, col):
                 if C[ai, bi] < (1.0 - min_match_overlap):
                     na, nb = (i, ids_i[ai]), (j, ids_j[bi])
-                    if find(na) == find(nb):
+                    ra, rb = find(na), find(nb)
+                    if ra == rb:
                         continue
-                    if comp_images(na) & comp_images(nb):
+                    if comp_views[ra] & comp_views[rb]:
                         continue
                     union(na, nb)
 
@@ -238,6 +239,16 @@ def main():
     ap.add_argument("--masks", required=True)
     ap.add_argument("--ground_truth", type=int, default=113)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--final_toolarge", choices=["accept", "drop"], default="accept",
+                    help="multi-view instances still too large after the last "
+                         "iteration: accept (refined default) or drop "
+                         "(base pipeline: --max_iter 0 --final_toolarge drop)")
+    ap.add_argument("--min_masks", type=int, default=1,
+                    help="drop instances supported by fewer masks (= views); "
+                         "default 1 keeps everything")
+    ap.add_argument("--dump", default=None,
+                    help="JSON with initial components, accepted candidates "
+                         "and cluster labels (for eval_gt_assoc.py)")
     # initial graph params
     ap.add_argument("--corr_3d_thresh", type=float, default=0.020)
     ap.add_argument("--min_match_overlap", type=float, default=0.05)
@@ -316,6 +327,8 @@ def main():
 
         for comp, born in worklist:
             n_inst = len(comp)
+            if n_inst < args.min_masks:
+                continue
             pts = component_points(comp, pm, masks)
             res = fit_sphere(pts, thresh=args.sphere_thresh)
             if res is None:
@@ -365,7 +378,7 @@ def main():
 
             else:
                 # radius < min_radius, or too-big-multi at final iteration
-                if too_big and (not is_singleton):
+                if too_big and (not is_singleton) and args.final_toolarge == "accept":
                     # iterations exhausted but still too big -> accept to avoid loss
                     accepted.append((comp, center, radius))
                     accepted_this_iter.append(comp)
@@ -399,6 +412,19 @@ def main():
             n_clusters=None, distance_threshold=args.cluster_dist,
             linkage="complete", metric="euclidean").fit(centers).labels_
     n_clusters = len(set(labels))
+
+    if args.dump:
+        def nl(comp):
+            return [[int(im), int(iid)] for (im, iid) in comp]
+        os.makedirs(os.path.dirname(os.path.abspath(args.dump)), exist_ok=True)
+        with open(args.dump, "w") as f:
+            json.dump({"initial": [nl(c) for c in components],
+                       "accepted": [nl(c) for (c, _, _) in accepted],
+                       "labels": [int(l) for l in labels],
+                       # fitted spheres of the accepted instances (point map units)
+                       "centers": [[float(x) for x in c] for (_, c, _) in accepted],
+                       "radii": [float(r) for (_, _, r) in accepted]}, f)
+        print(f"  dump saved: {args.dump}")
 
     gt = args.ground_truth
     err = n_clusters - gt
